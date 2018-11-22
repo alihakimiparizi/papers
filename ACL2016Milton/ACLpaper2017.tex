@@ -1,0 +1,1313 @@
+%
+% File eacl2017.tex
+%
+%% Based on the style files for ACL-2016
+%% Based on the style files for ACL-2015, with some improvements
+%%  taken from the NAACL-2016 style
+%% Based on the style files for ACL-2014, which were, in turn,
+%% Based on the style files for ACL-2013, which were, in turn,
+%% Based on the style files for ACL-2012, which were, in turn,
+%% based on the style files for ACL-2011, which were, in turn, 
+%% based on the style files for ACL-2010, which were, in turn, 
+%% based on the style files for ACL-IJCNLP-2009, which were, in turn,
+%% based on the style files for EACL-2009 and IJCNLP-2008...
+
+%% Based on the style files for EACL 2006 by 
+%%e.agirre@ehu.es or Sergi.Balari@uab.es
+%% and that of ACL 08 by Joakim Nivre and Noah Smith
+
+\documentclass[11pt]{article}
+\usepackage{acl2017}
+\usepackage{times}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{latexsym}
+\usepackage{xspace}
+\usepackage{multirow}
+\usepackage{paralist}
+
+%\eaclfinalcopy % Uncomment this line for the final submission
+%\def\eaclpaperid{***} %  Enter the acl Paper ID here
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+\newcommand\BibTeX{B{\sc ib}\TeX}
+
+
+\newcommand\original{\textsc{Original}\xspace}
+\newcommand\twitter{\textsc{Twitter}\xspace}
+
+\newcommand\glove{GloVe\xspace}
+
+\newcommand{\eqnref}[1]{Equation~\ref{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\figsref}[2]{Figures~\ref{#1} and \ref{#2}}
+\newcommand{\posciteauthor}[1]{\citeauthor{#1}'s}
+\newcommand{\poscite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\secsref}[2]{Sections~\ref{#1} and \ref{#2}}
+\newcommand{\sentref}[1]{(\ref{#1})}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\tabsref}[2]{Tables~\ref{#1} and \ref{#2}}
+
+\renewcommand{\ttdefault}{cmtt}
+
+\title{Supervised and unsupervised approaches to measuring usage similarity}
+
+% Author information can be set in various styles:
+% For several authors from the same institution:
+% \author{Author 1 \and ... \and Author n \\
+%         Address line \\ ... \\ Address line}
+% if the names do not fit well on one line use
+%         Author 1 \\ {\bf Author 2} \\ ... \\ {\bf Author n} \\
+% For authors from different institutions:
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \And  ... \And
+%         Author n \\ Address line \\ ... \\ Address line}
+% To start a seperate ``row'' of authors use \AND, as in
+% \author{Author 1 \\ Address line \\  ... \\ Address line
+%         \AND
+%         Author 2 \\ Address line \\ ... \\ Address line \And
+%         Author 3 \\ Address line \\ ... \\ Address line}
+% If the title and author information does not fit in the area allocated,
+% place \setlength\titlebox{<new height>} right after
+% at the top, where <new height> can be something larger than 2.25in
+\author{}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Usage similarity (USim) is an approach to determining word meaning in
+context that does not rely on a sense inventory. Instead, pairs of
+usages of a target lemma are rated on a scale. In this paper we
+propose unsupervised approaches to USim based on embeddings for words,
+contexts, and sentences, and achieve state-of-the-art results over two
+USim datasets. We further consider supervised approaches to USim, and
+find that although they outperform unsupervised approaches, they are
+unable to generalize to lemmas that are unseen in the training data.
+\end{abstract}
+
+
+%% \section{Introduction}
+
+%% Word senses are not discrete. In many cases, for a given instance of a
+%% word, multiple senses from a sense inventory are applicable, and to
+%% varying degrees \citep{Erk2009b}. That a clear line cannot be drawn
+%% between the various senses of a word has been observed as far back as
+%% \cite{Johnson1755}. Some have gone so far as to doubt the existence of
+%% word senses \citep{Kilgarriff1997}.
+
+%% %% Quote from Johnson's preface:
+%% %% The shades of meaning sometimes pass imperceptibly into each other;
+
+%% Sense inventories also suffer from a lack of coverage. New words
+%% regularly come into usage, as do new senses for established
+%% words. Furthermore, domain-specific senses are often not included in
+%% general-purpose sense inventories.
+%% %% Citations to back these claims up???
+%% This issue of coverage is particularly relevant for social media text,
+%% which contains a higher rate of out-of-vocabulary words than
+%% more-conventional text types \citep{Baldwin+:2013}.
+
+%% These issues pose problems for natural language processing tasks such
+%% as word sense disambiguation and induction, which rely on, and seek to
+%% induce, respectively, sense inventories. In response to this,
+%% alternative approaches to word meaning have been proposed that do not
+%% rely on sense inventories \citep{Erk2009b}. In particular,
+%% \citeauthor{Erk2009b} introduce the task of usage similarity (USim),
+%% in which two usages of a given target word are rated for their
+%% similarity, without reference to a sense inventory.
+
+%% In this paper we propose an unsupervised approach to USim based on
+%% word embeddings \citep{Mikolov+:2013b} that achieves state-of-the-art
+%% results over two USim datasets, based on Twitter text and
+%% more-conventional texts, respectively.  We then consider a supervised
+%% approach to USim. Although this method outperforms the
+%% unsupervised approaches, it performs very poorly on lemmas that are
+%% unseen in the training data.
+
+%% %% Story: Apply a range of approaches to embeddings to USim. An approach
+%% %% based an average of word2vec embeddings is able to beat the previous
+%% %% state of the art. Context2Vec gives further improvements in some cases.
+
+
+
+%% \section{Related work\label{sec:rw}}
+
+%% Word sense disambiguation (WSD) is the task of selecting the
+%% most-appropriate sense --- from a sense inventory --- for a token
+%% instance of a word in context \citep{Navigli:2009}. This task
+%% specifically requires a sense inventory, and has traditionally assumed
+%% that each instance of a word can be assigned one sense.  Word sense
+%% induction (WSI), on the other hand, is the task of clustering the
+%% token instances of a given word by sense, in order to induce word
+%% senses. Although WSI does not require a sense inventory, this task
+%% typically assumes that each usage can be assigned to one cluster
+%% (i.e., induced sense). Moreover, WSI evaluation has often been based
+%% on a WSD task, where induced senses are mapped to gold-standard senses
+%% \citep{Agirre:Soroa:2007,Manandhar+:2010}. Recent WSI systems and
+%% evaluations have, however, considered graded senses and multi-sense
+%% applicability \citep{Jurgens:Klapaftis:2013}.
+
+%% \cite{Erk2009b} showed that multiple senses are often applicable to a
+%% given instance of a word, and that this issue cannot be addressed
+%% simply by choosing a coarser-grained sense inventory.  As part of
+%% their work they carried out an annotation task on ``usage similarity''
+%% (USim), in which the similarity of the meanings of two usages of a
+%% given word are rated on a five-point scale.
+
+%% \cite{LuiBaldwin2012} proposed the first computational approach to
+%% USim. They considered approaches based on topic modelling
+%% \citep{Blei2003}, under a wide range of parameter settings, and found
+%% that a single topic model for all target lemmas (as opposed to one
+%% topic model per target lemma) 
+%% %% based on the full-document context in which each target token
+%% %% occurred,
+%% performed best on the dataset of \cite{Erk2009b}. \cite{Gella+:2013}
+%% considered USim on Twitter text, noting that this model of word
+%% meaning seems particularly well-suited to this text type because of
+%% the prevalence of out-of-vocabulary words. \citeauthor{Gella+:2013}
+%% also considered topic modelling-based approaches, achieving their best
+%% results using one topic model per target word, and a document
+%% expansion strategy based on medium frequency hashtags to combat the
+%% data sparsity of tweets due to their relatively short length. The
+%% methods of \citeauthor{LuiBaldwin2012} and \citeauthor{Gella+:2013}
+%% are unsupervised; they do not rely on any gold standard USim
+%% annotations.
+%% %% Reinforce that these would need to be set somehow... and that it's
+%% %% not entirely clear how to do that?
+
+%% Our proposed method achieves state of the art performance on
+%% \poscite{Erk2009b} original USim dataset, and \poscite{Gella+:2013}
+%% Twitter USim dataset.
+
+
+
+
+\section{Usage similarity}
+
+%% Word senses are not discrete. In many cases, for a given instance of a
+%% word, multiple senses from a sense inventory are applicable, and to
+%% varying degrees \citep{Erk2009b}. That a clear line cannot be drawn
+%% between the various senses of a word has been observed as far back as
+%% \cite{Johnson1755}. Some have gone so far as to doubt the existence of
+%% word senses \citep{Kilgarriff1997}.
+
+Word senses are not discrete. In many cases, for a given instance of a
+word, multiple senses from a sense inventory are applicable, and to
+varying degrees, and this issue cannot be addressed simply by choosing
+a coarser-grained sense inventory \citep{Erk2009b}. That a clear line
+cannot be drawn between the various senses of a word has been observed
+as far back as \cite{Johnson1755}. Some have gone so far as to doubt
+the existence of word senses \citep{Kilgarriff1997}.
+
+%% Quote from Johnson's preface:
+%% The shades of meaning sometimes pass imperceptibly into each other;
+
+Sense inventories also suffer from a lack of coverage. New words
+regularly come into usage, as do new senses for established
+words. Furthermore, domain-specific senses are often not included in
+general-purpose sense inventories.
+%% Citations to back these claims up???
+This issue of coverage is particularly relevant for social media text,
+which contains a higher rate of out-of-vocabulary words than
+more-conventional text types \citep{Baldwin+:2013}.
+
+%% These issues pose problems for natural language processing tasks such
+%% as word sense disambiguation and induction, which rely on, and seek to
+%% induce, respectively, sense inventories, and have traditionally
+%% assumed that each instance of a word can be assigned one
+%% sense.\footnote{Recent word sense induction systems and evaluations
+%%   have, however, considered graded senses and multi-sense
+%%   applicability \citep[e.g.,][]{Jurgens:Klapaftis:2013}.} In response
+%% to this, alternative approaches to word meaning have been proposed
+%% that do not rely on sense inventories \citep{Erk2009b}.
+
+%% \cite{Erk2009b} showed that multiple senses are often applicable to a
+%% given instance of a word, and that this issue cannot be addressed
+%% simply by choosing a coarser-grained sense inventory.  As part of
+%% their work, they carried out an annotation task on ``usage similarity''
+%% (USim), in which the similarity of the meanings of two usages of a
+%% given word are rated on a five-point scale.
+
+These issues pose problems for natural language processing tasks such
+as word sense disambiguation and induction, which rely on, and seek to
+induce, respectively, sense inventories, and have traditionally
+assumed that each instance of a word can be assigned one
+sense.\footnote{Recent word sense induction systems and evaluations
+  have, however, considered graded senses and multi-sense
+  applicability \citep[e.g.,][]{Jurgens:Klapaftis:2013}.} In response
+to this, alternative approaches to word meaning have been proposed
+that do not rely on sense inventories. \cite{Erk2009b} carried out an
+annotation task on ``usage similarity'' (USim), in which the
+similarity of the meanings of two usages of a given word are rated on
+a five-point scale.
+
+%% In particular,
+%% \citeauthor{Erk2009b} introduce the task of usage similarity (USim),
+%% in which two usages of a given target word are rated for their
+%% similarity, without reference to a sense inventory.
+
+\cite{LuiBaldwin2012} proposed the first computational approach to
+USim. They considered approaches based on topic modelling
+\citep{Blei2003}, under a wide range of parameter settings, and found
+that a single topic model for all target lemmas (as opposed to one
+topic model per target lemma) 
+%% based on the full-document context in which each target token
+%% occurred,
+performed best on the dataset of \cite{Erk2009b}. \cite{Gella+:2013}
+considered USim on Twitter text, noting that this model of word
+meaning seems particularly well-suited to this text type because of
+the prevalence of out-of-vocabulary words. \citeauthor{Gella+:2013}
+also considered topic modelling-based approaches, achieving their best
+results using one topic model per target word, and a document
+expansion strategy based on medium frequency hashtags to combat the
+data sparsity of tweets due to their relatively short length. The
+methods of \citeauthor{LuiBaldwin2012} and \citeauthor{Gella+:2013}
+are unsupervised; they do not rely on any gold standard USim
+annotations.
+%% Reinforce that these would need to be set somehow... and that it's
+%% not entirely clear how to do that?
+
+In this paper we propose unsupervised approaches to USim based on
+embeddings for words \citep{Mikolov+:2013b, pennington2014glove},
+contexts \citep{melamud2016context2vec}, and sentences
+\citep{Kiros+:2015}, and achieve state-of-the-art results over the
+USim datasets of both \cite{Erk2009b} and \cite{Gella+:2013}. We then
+consider supervised approaches to USim based on these same methods for
+forming embeddings, which outperform the unsupervised approaches, but
+perform poorly on lemmas that are unseen in the training data.
+
+%% \section{A continuous vector space model for USim\label{sec:model}}
+\section{USim models\label{sec:model}}
+
+%% Represent the meaning of a word by its context. 
+
+%% In this paper we consider both unsupervised and supervised approaches
+%% for USim.
+
+In this section we describe how we represent a target word usage in
+context, and then how we use these representations in unsupervised and
+supervised approaches to USim.
+
+
+
+\subsection{Usage representation\label{sec:usagerep}}
+%%DIscuss the different methods of representing a usage for the different models
+
+
+%% We use four different embedding models to represent an instance of a
+%% target word.
+
+%% \begin{compactdesc}
+%% \item[Word2vec] We represent a token instance of the target word in a
+%%   sentence as the average of the word2vec \citep{Mikolov+:2013b}
+%%   embeddings for the other words occurring in the sentence, excluding
+%%   stopwords.
+
+%% \item[\glove] \cite{pennington2014glove} proposed \glove, a model for
+%%   learning word embeddings based on word--word co-occurrences in a
+%%   corpus. We represent a target word in the same way as for word2vec,
+%%   i.e., as the average of the embeddings for the other (non-stopword)
+%%   words in a sentence.
+
+%% \item[Context2vec] Context2vec \citep{melamud2016context2vec} is a
+%%   bidirectional long short term memory neural network that, during
+%%   training, embeds the context of word token instances in the same
+%%   vector space as word types. As this model explicitly embeds word
+%%   contexts it seems particularly well-suited to USim.
+
+%% \item[Skip-thoughts] \cite{Kiros+:2015} proposed skip-thoughts, a
+%%   sentence encoder that can be viewed as a sentence-level version of
+%%   word2vec's skipgram model, i.e., during training, the encoding of a
+%%   sentence is used to predict surrounding sentences.  As part of their
+%%   evaluation, \citeauthor{Kiros+:2015} showed that skip-thoughts
+%%   out-performs previous approaches to measuring sentence-level
+%%   relatedness.  Although our goal is to determine the meaning of a
+%%   word in context, the meaning of a sentence could be a useful proxy
+%%   for this.\footnote{Inference requires only a single sentence. The
+%%     model is therefore able to infer skip-thought vectors for
+%%     sentences out-of-context, and for tweets that typically do not
+%%     form part of a larger discourse.}
+%% \end{compactdesc}
+
+We consider four ways of representing an instance of a target word
+based on embeddings for words, contexts, and sentences. For word
+embeddings, we consider word2vec \citep{Mikolov+:2013b} and \glove
+\citep{pennington2014glove}. In each case we represent a token
+instance of the target word in a sentence as the average of the word
+embeddings for the other words occurring in the sentence, excluding
+stopwords.
+
+Context2vec \citep{melamud2016context2vec} is a bidirectional long
+short term memory neural network that, during training, embeds the
+context of word token instances in the same vector space as word
+types. As this model explicitly embeds word contexts it seems
+particularly well-suited to USim.
+
+\cite{Kiros+:2015} proposed skip-thoughts, a sentence encoder that can
+be viewed as a sentence-level version of word2vec's skipgram model,
+i.e., during training, the encoding of a sentence is used to predict
+surrounding sentences.  \citeauthor{Kiros+:2015} showed that
+skip-thoughts out-performs previous approaches to measuring
+sentence-level relatedness.  Although our goal is to determine the
+meaning of a word in context, the meaning of a sentence could be a
+useful proxy for this.\footnote{Inference requires only a single
+  sentence, so the model can infer skip-thought vectors for sentences
+  taken out-of-context, as in the USim datasets.}
+
+%% \footnote{Inference requires only a single
+%%   sentence. The model is therefore able to infer skip-thought vectors
+%%   for sentences out-of-context, and for tweets that typically do not
+%%   form part of a larger discourse.  }
+
+
+
+%%MK Is description too close to the wording from the Mikolov paper? 
+%% PC: Can you provide that wording (in a comment) so I can compare?
+%%"we concatenate the paragraph vector with several word vec- tors from a paragraph and predict the following word in the given context." Mikolov
+%% PC: We'll worry about it if we do actually get doc2vec results...
+
+%%MK Added a sentence to this paragraph about the word embeddings used in Doc2Vec
+
+%% \cite{Mikolov+:2013a} proposed doc2vec, a model that embeds a document
+%% of a non-predetermined length into a vector of a predetermined length
+%% by training a document vector to predict a target word's embedding in
+%% a document given the embeddings of the words that occur before the
+%% target word in the document. The word embeddings are trained separately using a CBOW-like model.
+
+
+%% We use each of the embedding models described above to obtain a
+%% representation of a given usage of a target word. In the case of
+%% word2vec and \glove, we represent a token instance of the target word
+%% in a sentence as the normalized sum of the word embeddings for the
+%% other words occurring in the sentence, excluding stopwords. 
+%% The vector sum is then normalized to account for the variation in
+%% the sentences lengths.
+%% For context2vec, skip-thoughts and doc2vec, we feed the sentence
+%% containing the target word as input to each of these embedding models,
+%% where each will create an embedding of the usage. The size of the
+%% embedding is dependent on the model that generated it.
+
+\subsection{Unsupervised approach}
+
+
+%% the types corresponding to the other tokens occurring in that
+%% sentence,
+In the unsupervised setup, we measure the similarity between two
+usages of a target word as the cosine similarity between their vector
+representations, obtained by one of the methods described in
+\secref{sec:usagerep}. This method does not require gold standard
+training data.
+
+
+
+\subsection{Supervised approach}
+
+We also consider a supervised approach. For a given pair of token
+instances of a target word, $t_1$ and $t_2$, we first form vectors
+$v_1$ and $v_2$ representing each of the two instances of the target,
+using one of the approaches in \secref{sec:usagerep}. Following
+\cite{Tai+:2015} we compute the componentwise product, and absolute
+difference, of $v_1$ and $v_2$, and concatenate them. This gives a
+vector of length $2d$ --- where $d$ is the dimensionality of the
+embeddings used --- representing each pair of instances. We then train
+ridge regression to learn a model to predict the similarity of unseen
+usage pairs.
+
+%% \footnote{The regression model has a regularization strength of 1 and
+%%   normalizes the input.}
+
+
+
+\section{Materials and methods\label{sec:mandm}}
+
+%% We trained four sets of word embeddings using Wor2Vec
+%% \citep{Mikolov+:2013b} on two different corpora. Two sets were trained on
+%% a Twitter Dump, while the other sets were trained on a Wiki dump. One
+%% set of each of the corpus dependent sets were trained using the
+%% Skipgram model and the other sets were trained using the CBOW
+%% model. Each set consisted of models that were trained using a variety
+%% of parameters for dimensions of the embeddings and the size of the
+%% training window.  We then test each individual model on two different
+%% usage similarity tasks. The two datasets tested that were tested on
+%% are the ones that were used in \cite{Gella+:2013} and
+%% \cite{LuiBaldwin2012}. These are further described in section 4.1. We
+%% tokenized each dataset before applying running the USim test. The
+%% dataset that was used in \cite{LuiBaldwin2012} was tokenized using a
+%% basic tokenizer that we developed where all leading and trailing
+%% non-alphanumeric characters are dropped and the dataset that was used
+%% in \cite{Gella+:2013} was tokenized using a tokenizer, which made to
+%% handle Twitter text which is explained in 4.3. We approached this task
+%% by comparing a vector representation of each sentence. The vector
+%% representation of a sentence is achieved through summing over all word
+%% embeddings within that sentence. The sentences were first tokenized
+%% then we iterated over the sentence and if the word is not in the stop
+%% word list, then the embedding of the word is grabbed from the trained
+%% model and added to the ongoing sum of word embeddings using component
+%% wise addition. Once both sentences within a sentence pair have a
+%% vector representation, we compute the cosine distance between them as
+%% measurement of similarity. In preliminary experiments, we tested with
+%% different parameters for the size of the window around the word whose
+%% usage similarity is being calculated. This means we only summed the
+%% embeddings of the words within this window from that word. In
+%% preliminary experiments, we discovered that a window, that viewed all
+%% words in the sentence, shown to produce better results in terms of
+%% correlation with the gold standard.
+
+\subsection{USim Datasets \label{sec:datasets}}
+
+
+We evaluate our methods on two USim datasets representing two
+different text types: \original, the USim dataset of \cite{Erk2009b},
+and \twitter from \cite{Gella+:2013}. Both USim datasets contain pairs
+of sentences; each sentence in each pair includes a usage of a
+particular target lemma. Each sentence pair is rated on a scale of
+1--5 for how similar in meaning the usages of the target words are in
+the two sentences.
+
+\original consists of sentences from \cite{McCarthy:Navigli:2007},
+which were drawn from a web corpus \citep{Sharoff2006b}. This dataset
+contains 34 lemmas, including nouns, verbs, adjectives, and
+adverbs. Each lemma is the target word in 10 sentences. For each
+lemma, sentence pairs (SPairs) are formed based on all pairwise
+comparisons, giving 45 SPairs per lemma. Annotations were
+provided by three native English speakers, with the average taken as
+the final gold standard similarity. In a small number of cases the
+annotators were unable to judge similarity. \citeauthor{Erk2009b}
+removed these SPairs from the dataset, resulting in a total of
+1512 SPairs.
+
+\twitter contains SPairs for ten nouns from \original. In this
+case the ``sentences'' are in fact tweets. 55 SPairs are
+provided for each noun. Unlike \original, the SPairs are not
+formed on the basis of all pairwise comparisons amongst a smaller set
+of sentences. This dataset was annotated via crowd sourcing and
+carefully cleaned to remove outlier annotations.
+
+%% Amazon Mechanical Turk,\footnote{\url{https://www.mturk.com/}}
+
+
+%% Omitted detail that they applied lexical normalization using Bo's
+%% dictionary to the dataset
+
+
+
+%% \original was tokenized by splitting on whitespace, and then stripping
+%% all leading and trailing non-alphanumeric characters from tokens
+%% containing at least one alphanumeric character. \twitter was tokenized
+%% using a tokenizer developed for tweets, based on
+%% \cite{OConnor+:2010}. This tokenizer preserves phenomena that are
+%% particularly common in tweets --- such as emoticons, hashtags, and
+%% urls --- as tokens.
+
+
+
+\subsection{Evaluation\label{sec:evaluation}}
+Following \cite{LuiBaldwin2012} and \cite{Gella+:2013} we evaluate our
+systems by calculating Spearman's rank correlation coefficient between
+the gold standard similarities and the predicted similarities. This
+enables direct comparison of our results with those reported in these
+previous studies.
+
+
+%% We considered two cross-validation methodologies to evaluate our
+%% supervised approaches.
+
+%% For experiments involving our supervised approaches, we considered two
+%% evaluation methodologies based on cross-validation.
+
+
+We evaluate our supervised approaches using two cross-validation
+methodologies. In the first case we apply 10-fold cross-validation,
+randomly partitioning all SPairs for all lemmas in a given
+dataset. Using this approach, the test data for a given fold consists
+of SPairs for target lemmas that were seen in the training data. To
+determine how well our methods generalize to unseen lemmas, we
+consider a second cross-validation setup in which we partition the
+SPairs in a given dataset by lemma. Here the test data for a given
+fold consists of SPairs for one lemma, and the training data consists
+of SPairs for all other lemmas.
+
+%% we considered a second approach to cross-validation. In this case we
+%% partitioned the sentence pairs in a given dataset by lemma. For a
+%% given fold, the test data consisted of sentence pairs for one lemma,
+%% and the training data consisted of sentence pairs for all other
+%% lemmas.
+
+
+
+%% \subsection{Corpora\label{sec:corpora}}
+
+%% % Describe corpora (Twitter and Wikipedia) and their preprocessing
+
+%% The word embeddings were trained on three corpora: (1) a sample of
+%% English tweets collected from the Twitter Streaming
+%% APIs\footnote{\url{https://dev.twitter.com/}} from November 2014 to
+%% March 2015, consisting of roughly 1.3 billion tokens; (2) a dump of
+%% English Wikipedia from 1 September 2015, containing roughly 2.6
+%% billion tokens; (3) the ukWaC \cite{Ferraresi2008} a web corpus built
+%% from the \url{.uk} domain of approximately 2 billion tokens. The
+%% Twitter corpus was tokenized using a tokenizer developed for tweets,
+%% based on \cite{OConnor+:2010}. This tokenizer preserves phenomena that
+%% are particularly common in tweets --- such as emoticons, hashtags, and
+%% URLs --- as tokens. The Wikipedia dump was first processed using
+%% WP2TXT\footnote{\url{https://github.com/yohasebe/wp2txt}} to remove
+%% markup. The Wikipedia corpus was then tokenized using
+%% the Stanford PTBTokenizer \citep{manning-EtAl:2014:P14-5}.  
+
+%% PC: The ukWaC comes with tokenization. (i.e. it's distributed in a
+%% vertical format with one token per line) What did you do to also run
+%% the Stanford tokenizer on this? (I'm guessing you concatenated ukWaC
+%% tokens together with whitespace between them, and then ran the
+%% Stanford tokenizer on this)
+
+%%MK I concatenated the tokens and then split on the whitespace
+
+%%MK Do we need to discuss what the ukWaC looks like (already
+%%tokenized) or not because it is already well known?
+
+%% PC: I'm confused. Let's discuss in person on Thursday.
+
+%% \subsection{Word2vec settings\label{sec:w2vparams}}
+%% We trained the word embeddings using word2vec's skipgram model for a
+%% variety of settings of window size ($W$=1,2,5,8) and number of
+%% dimensions ($D$=50,100,300) on both the Wikipedia and Twitter corpora
+%% described in the previous subsection.\footnote{In preliminary
+%%   experiments the alternative word2vec CBOW model achieved
+%%   substantially lower correlations than skipgram, and so CBOW was not
+%%   considered further. } We used a window size of 8 and 300 dimensions
+%% when training on ukWaC in order to compare against context2vec, which
+%% was trained on ukWaC. This window and dimension setting was chosen
+%% because it performed well when trained on the Wiki and Twitter corpora
+%% and applied to (\original) and (\twitter) respectively.
+
+\subsection{Embeddings\label{sec:mm:embeddings}}
+
+We train word2vec's skipgram model on two corpora:\footnote{In
+  preliminary experiments the alternative word2vec CBOW model achieved
+  substantially lower correlations than skipgram, and so CBOW was not
+  considered further.} (1) a corpus of English tweets collected from
+the Twitter Streaming APIs\footnote{\url{https://dev.twitter.com/}}
+from November 2014 to March 2015 containing 1.3 billion tokens; and
+(2) an English Wikipedia dump from 1 September 2015 containing 2.6
+billion tokens. 
+%% The Twitter corpus was tokenized using a tokenizer
+%% based on \cite{OConnor+:2010}.
+%% %% This tokenizer preserves phenomena that are particularly common in
+%% %% tweets --- such as emoticons, hashtags, and URLs --- as tokens.
+%% The Wikipedia dump was cleaned using
+%% WP2TXT,\footnote{\url{https://github.com/yohasebe/wp2txt}} and then
+%% tokenized using the Stanford PTBTokenizer
+%% \citep{manning-EtAl:2014:P14-5}. 
+Because of the relatively-low cost of training word2vec, we consider
+several settings of window size ($W$=2,5,8) and number of dimensions
+($D$=50,100,300).  Embeddings trained on Wikipedia and Twitter are
+used for experiments on \original and \twitter, respectively.
+
+
+
+
+For the other embeddings we use pre-trained models. We use \glove
+vectors from Wikipedia and Twitter, with 300 and 200 dimensions, for
+experiments on \original and \twitter,
+respectively.\footnote{\url{http://nlp.stanford.edu/projects/glove/}}
+For context2vec we use a 600 dimensional model trained on the ukWaC
+\citep{Ferraresi2008}.\footnote{\url{https://github.com/orenmel/context2vec}}
+We use a skip-thoughts model with 4800 dimensions, trained on a corpus
+of books.\footnote{\url{https://github.com/ryankiros/skip-thoughts}}
+We use these context2vec and skip-thoughts models for experiments on
+both \original and \twitter.
+
+%% --- a web corpus of approximately 2 billion
+%% tokens.
+
+
+
+
+\section{Experimental results\label{sec:results}}
+
+
+
+
+%% \begin{table*}
+%% \begin{center}
+%% \small
+%% \begin{tabular}{cc|ccc|ccc}
+%% & & \multicolumn{3}{c|}{\textsc{Original}} &
+%%   \multicolumn{3}{c}{\textsc{Twitter}}\\ 
+
+%%  &  & \multirow{2}{*}{Unsupervised}  & \multicolumn{2}{c|}{Supervised} & \multirow{2}{*}{Unsupervised} & \multicolumn{2}{c}{Supervised}  \\ 
+%% $W$ & $D$ & & All & Lemma & & All & Lemma\\
+%% \hline
+%% %%New values with the proper seed
+%% 1 & 50  & 0.236* & 0.284* & 0.163 & 0.202* & 0.267 & 0.154 \\   
+%% 1 & 100 & 0.256* & 0.307* & 0.142 & 0.239* & 0.287 & 0.207 \\   
+%% 1 & 300 & 0.266* & 0.378* & 0.169 & 0.237* & 0.186 & 0.032 \\  
+%% 2 & 50  & 0.251* & 0.310* & 0.181 & 0.231* & 0.301 & 0.128 \\   
+%% 2 & 100 & 0.267* & 0.373* & 0.196 & 0.276* & 0.261\phantom{*} & 0.155\\  
+%% 2 & 300 & 0.275* & 0 .421* & 0.208 & 0.266* & 0.290\phantom{*} & 0.182 \\  
+%% \hline
+%% 5 & 50  & 0.262* & 0.330* & 0.215 & 0.272* & 0.331 & 0.206 \\   
+%% 5 & 100 & 0.273* & 0.352* & 0.226 & 0.295* & 0.278 & 0.160 \\  
+%% 5 & 300 & 0 & 0 & 0 & 0.295* & 0.347* & 0.225 \\  
+%% \hline
+%% 8 & 50  & \textbf{0.286*} & 0.355* & 0.232 & 0.282* &0.311\phantom{*} & \textbf{0.254} \\   
+%% 8 & 100 & 0.273* & 0.376* & 0.243 & 0.298* & 0.342* & 0.236 \\  
+%% 8 & 300 & 0.281* & \textbf{0.434*} & 0.209 & \textbf{0.310*} & \textbf{0.379*} & 0.138 \\    
+%% %% 10 & 50 & 0.279* & 0  & \textbf{0} & 0. & 0 & 0 \\  
+%% %% 10 & 100& 0  &  0   & 0 & 0. & 0 & 0 \\ 
+%% %% 10 & 300& 0.281*   &  \textbf{0}   & 0 & ???   & &  ??? \\
+%% \hline
+%% \end{tabular}
+%% \caption{Spearman's $\rho$ on \original and \twitter using the
+%%   unsupervised and supervised methods with Ridge Regression, with cross-validation folds
+%%   based on random sampling across all lemmas (All), or holding out
+%%   individual lemmas (Lemma), for word embeddings trained using a
+%%   variety of settings for window size ($W$) and number of dimensions
+%%   ($D$), and skip-thought vectors. The best $\rho$ for each method is
+%%   shown in boldface. Significant correlations ($p<0.05$) are indicated
+%%   with *. 
+%% \label{tbl:results1}}
+
+%% \end{center}
+%% \end{table*}
+
+
+
+
+
+
+
+
+
+
+%% \begin{table*}
+%% \begin{center}
+%% \small
+%% \begin{tabular}{cc|ccccc|c}
+
+%% Dataset& &Word2vec(Wiki/Twitter) & Word2vec(UkWaC) & Skip-thoughts & Context2vec & \glove & Previous state-of-the-art \\
+%% \hline
+
+%% & Unsupervised  & 0.281* &0.276* & 0.177*& \textbf{0.302*}& 0.218* & \multirow{7}{*}{0.202}\\
+%% Original &All (sup)  & 0.434*& \textbf{0.450*} & 0.433* & 0.405* & 0.406*\\
+%% &Abs Diff All (sup)  & 0.370* &0.429* & \textbf{0.462*} & 0.406* & 0.317*\\
+%% &Prod All (sup)  & \textbf{0.386*} & 0.385* & \textbf{0.386*} & 0.352* & 0.356*\\
+%% &Lemma (sup)  & \textbf{0.209} &0.237& 0.122& 0.198 & 0.228 \\
+%% &Abs Diff Lemma (sup)  &  \textbf{0.186} & 0.214 &0.140 & 0.094 &0.154 \\
+%% &Prod Lemma (sup)  & 0.213 & 0.237 & 0.112 & \textbf{0.214} & 0.253\\
+%% \hline
+
+%% & Unsupervised  &\textbf{0.310*} & 0& 0.095*&  0 & 0.122* &\multirow{7}{*}{0.290}  \\
+%% Twitter &All (sup)  & \textbf{0.379*}& 0& 0.364*& 0& 0.319 & \\
+%% &Abs Diff All (sup)  & \textbf{0.303} & 0 & 0.292* & 0 & 0.185 \\
+%% &Prod All (sup)  & \textbf{0.378*} & 0 & 0.355* & 0 &0.316 \\
+%% &Lemma (sup) & 0.138 & 0& 0.079 & 0& \textbf{0.149} & \\
+%% &Abs Diff Lemma (sup)  & \textbf{0.172} & 0 & 0.032 & 0 & 0.113 \\
+%% &Prod Lemma (sup)  & \textbf{0.213} & 0 & 0.074 & 0 & 0.155 \\
+%% \hline
+%% \end{tabular}
+%% \caption{Spearman's $\rho$ on \original and \twitter using the
+%%   unsupervised and supervised methods with Ridge Regression, with cross-validation folds
+%%   based on random sampling across all lemmas (All), or holding out
+%%   individual lemmas (Lemma), for word embeddings trained using a
+%%   variety of settings for window size ($W$) and number of dimensions
+%%   ($D$), and skip-thought vectors. The best $\rho$ for each method is
+%%   shown in boldface. Significant correlations ($p<0.05$) are indicated
+%%   with *. Word2vec models trained on Wiki with a window size of 8 and 300 dimensions. Context2vec was trained on UkWaC and has 600 dimensions. \glove has a dimension of 300 for \original and 200 for \twitter.
+%% %%Target lemma is not included in the Word2Vec setup for above numbers 
+%% \label{tbl:results2}}
+%% \end{center}
+%% \end{table*}
+
+
+
+
+We first consider the unsupervised approach using word2vec for a
+variety of window sizes and number of dimensions. Results are shown in
+\tabref{tbl:w2vresults}. All correlations are significant
+($p<0.05$). On both \original and \twitter, for a given number of
+dimensions, as the window size is increased, $\rho$
+increases. Embeddings for larger window sizes tend to better capture
+semantics, whereas embeddings for smaller window sizes tend to better
+reflect syntax \citep{levy2014dependency}; the more-semantic
+embeddings given by larger window sizes appear to be better-suited to
+the task of predicting USim. For a given window size, a higher number
+of dimensions also tends to achieve higher $\rho$. For example, for a
+given window size, $D=300$ gives a higher $\rho$ than $D=50$ in each
+case, except for $W=8$ on \original.
+
+
+%% Results for the supervised and unsupervised methods are shown in
+%% \tabref{tbl:results1}. We first consider results for the unsupervised
+%% approach. On both \original and \twitter, for a given window size
+%% ($W$), as the number of dimensions ($D$) is increased, $\rho$
+%% increases, with the exception of $W$=8 for \original, where $D$=50
+%% achieves the highest correlation. Similarly, for a given number of
+%% dimensions, larger window sizes achieve higher $\rho$.
+
+
+%% ***** Need to account for change in results; waiting for one more
+%% number from Milton *****
+
+\begin{table}
+\begin{center}
+\small
+\begin{tabular}{cc|ccc|ccc}
+$D$ & $W$ & \textsc{Original} & \textsc{Twitter} \\
+\hline
+%% 50 & 1  & 0.236 & 0.202 \\
+50 & 2  & 0.251 & 0.246 \\
+50 & 5  & 0.262 & 0.272 \\
+50 & 8  & \textbf{0.286} & 0.282 \\
+\hline
+%% 100 & 1 & 0.256 & 0.239 \\
+100 & 2 & 0.267 & 0.248 \\
+100 & 5 & 0.273 & 0.253 \\
+100 & 8 & 0.273 & 0.298 \\
+\hline
+%% 300 & 1 & 0.266 & 0.237 \\
+300 & 2 & 0.275 & 0.266 \\
+300 & 5 & 0.279   & 0.295 \\
+300 & 8 & 0.281 & \textbf{0.300} \\
+\hline
+\end{tabular}
+\caption{Spearman's $\rho$ on each dataset using the unsupervised
+  approach with word2vec embeddings trained using several settings for
+  the number of dimensions ($D$) and window size ($W$). The best
+  $\rho$ for each dataset is shown in boldface.\label{tbl:w2vresults}}
+\end{center}
+\end{table}
+
+
+
+%% ***** Need to check text based on updated results from Milton;
+%% still waiting for skip-thoughts numbers *****
+
+\begin{table}
+\begin{center}
+\small
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{ccccc}
+\multirow{2}{*}{Dataset} & \multirow{2}{*}{Embeddings} & \multirow{2}{*}{Unsupervised} & \multicolumn{2}{c}{Supervised} \\
+& & & All & Lemma \\
+\hline
+\multirow{4}{*}{\textsc{Original}} & Word2vec & 0.281* & 0.435* & 0.220* \\
+ & \glove & 0.218* & 0.410* & \textbf{0.230*} \\
+ & Skip-thoughts & 0.177* & \textbf{0.436*} & 0.099* \\
+ & Context2vec & \textbf{0.302*} & 0.417* & 0.172* \\
+\hline
+\multirow{4}{*}{\textsc{Twitter}} & Word2vec & \textbf{0.300*} & \textbf{0.384*} & \textbf{0.196*} \\
+ & \glove & 0.122* & 0.314* & 0.134*\\
+ & Skip-thoughts & 0.095* & 0.360* & 0.058\phantom{*} \\
+ & Context2vec & 0.122* &0.193*  & 0.067\phantom{*} \\
+\hline
+\end{tabular}
+%% \caption{Spearman's $\rho$ on \original and \twitter using the
+\caption{Spearman's $\rho$ on each dataset using the unsupervised
+  method, and supervised methods with cross-validation folds based on
+  random sampling across all lemmas (All) and holding out individual
+  lemmas (Lemma), for each embedding approach. The best $\rho$ for
+  each experimental setup, on each dataset, is shown in
+  boldface. Significant correlations ($p<0.05$) are indicated with
+  *.\label{tab:otherresults}}
+\end{center}
+\end{table}
+
+
+
+The best correlations reported by \cite{LuiBaldwin2012} on \original,
+and \cite{Gella+:2013} on \twitter, were 0.202 and 0.29,
+respectively. The best parameter settings for our unsupervised
+approach using word2vec embeddings achieve higher correlations, 0.286
+and 0.300, on \original and \twitter,
+respectively. \citeauthor{LuiBaldwin2012} and \citeauthor{Gella+:2013}
+both report drastic variation in performance for different settings of
+the number of topics in their models. We also observe some variation
+with respect to parameter settings; however, any of the parameter
+settings considered achieves a higher correlation than
+\citeauthor{LuiBaldwin2012} on \original. For \twitter, parameter
+settings with $W \geq 5$ and $D \geq 100$ achieve a correlation
+comparable to, or greater than, the best reported by
+\citeauthor{Gella+:2013}
+
+
+We now consider the unsupervised approach, using the other
+embeddings. Based on the previous findings for word2vec, we only
+consider this model with $W=8$ and $D=300$ here. Results are shown in
+\tabref{tab:otherresults} in the column labeled ``Unsupervised''. For
+\original, context2vec performs best (and indeed outperforms word2vec
+for all parameter settings considered). This result demonstrates that
+approaches to predicting USim that explicitly embed the context of a
+target word can outperform approaches based on averaging word
+embeddings (i.e., word2vec and GloVe) or embedding sentences
+(skip-thoughts). This result is particularly strong because we
+consider a range of parameter settings for word2vec, but only used the
+default settings for context2vec.\footnote{The context2vec model has
+  600 dimensions, and was trained on the ukWac, whereas our word2vec
+  model for \original is trained on Wikipedia. To further compare
+  these approaches we also trained word2vec on the ukWaC with 600
+  dimensions and a window size of 8. These word2vec settings also did
+  not outperform context2vec.}  Word2vec does however perform best on
+\twitter.  The relatively poor performance of context2vec and
+skip-thoughts here could be due to differences between the text types
+these embedding models were trained on and the evaluation data.
+\glove performs poorly, even though it was trained on tweets for these
+experiments, but that it performs less well than word2vec is
+consistent with findings for \original.
+
+%% We now consider the unsupervised approach, using the other embeddings
+%% discussed in \secref{sec:usagerep}. Based on the previous observation
+%% for word2vec that a higher window size and number of dimensions tends
+%% to perform better, we only consider the word2vec model with $W=8$ and
+%% $D=300$ here. Results are shown in \tabref{tab:otherresults} in the
+%% column labeled ``Unsupervised''. For \original, context2vec performs
+%% best (and indeed outperforms word2vec for all parameter settings
+%% considered). This result demonstrates that approaches to predicting
+%% USim that explicitly embed the context of a target word can outperform
+%% approaches based on averaging word embeddings (i.e., word2vec and
+%% GloVe) or embedding sentences (skip-thoughts). This result is
+%% particularly strong because we consider a range of parameter settings
+%% for word2vec, but only used the default settings for
+%% context2vec.\footnote{The context2vec model has 600 dimensions, and
+%%   was trained on the ukWac, whereas our word2vec model for \original
+%%   is trained on Wikipedia. To further compare these approaches we also
+%%   trained word2vec on the ukWaC with 600 dimensions and a window size
+%%   of 8. These word2vec settings also did not outperform context2vec.}
+%% Word2vec does however perform best on \twitter. The relatively poor
+%% performance of context2vec and skip-thoughts here could be due to
+%% differences between the text types these embedding models were trained
+%% on (a web corpus and books, respectively) and the evaluation data
+%% (tweets).  The poor performance of \glove is somewhat surprising given
+%% that it was trained on tweets for these experiments, but that it
+%% performs less well than word2vec is consistent with findings for
+%% \original.
+
+
+
+
+%% PC: Is the above comment correct about the parameter settings we
+%% considered for ukWaC? Or did we consider a smaller range of settings?
+
+%%MK We did the same setting as Context2vec. Changed the last bit of
+%%the footnote
+
+
+%% In all cases,
+%% this supervised approach is an improvement over the unsupervised
+%% approach for the same parameter settings. The best correlations on
+%% \original and \twitter are 0.434 and 0.379, respectively. This
+%% suggests that if labeled training data is available, supervised
+%% approaches can give substantial improvements over unsupervised
+%% approaches to predicting USim.\footnote{These results on \original
+%%   must be interpreted cautiously, however. The same sentences, albeit
+%%   in different sentence pairs, occur in both the training and testing
+%%   data for a given fold. This issue does not affect \twitter.}
+%% However, this experimental setup does not demonstrate the extent to
+%% which such a supervised approach to USim is able to generalize to
+%% lemmas that are not seen during training.
+
+
+%% Turning to the supervised approach, we first consider results for
+%% cross-validation based on randomly partitioning all SPairs in
+%% a dataset (column ``All'' in \tabref{tab:otherresults}). The best
+%% correlations on \original and \twitter of 0.434 and 0.379,
+%% respectively, are achieved using word2vec embeddings, although the
+%% difference in performance amongst the various embedding approaches is
+%% considerably less here than in the unsupervised setting. For each type
+%% of embedding considered, the supervised approach is an improvement
+%% over the corresponding unsupervised approach. This suggests that if
+%% labeled training data is available, supervised approaches can give
+%% substantial improvements over unsupervised approaches to predicting
+%% USim.\footnote{These results on \original must be interpreted
+%%   cautiously, however. The same sentences, albeit in different
+%%   SPairs, occur in both the training and testing data for a
+%%   given fold. This issue does not affect \twitter.}  However, this
+%% experimental setup does not demonstrate the extent to which such a
+%% supervised approach to USim is able to generalize to lemmas that are
+%% not seen during training.
+
+Turning to the supervised approach, we first consider results for
+cross-validation based on randomly partitioning all SPairs in a
+dataset (column ``All'' in \tabref{tab:otherresults}). The best
+correlation on \twitter (0.384) is again achieved using word2vec,
+while the best correlation on \original (0.434) is obtained with
+skip-thoughts. The difference in performance amongst the various
+embedding approaches is, however, somewhat less here than in the
+unsupervised setting. For each embedding approach, and each dataset,
+the correlation in the supervised setting is better than that in the
+unsupervised setting, suggesting that if labeled training data is
+available, supervised approaches can give substantial improvements
+over unsupervised approaches to predicting USim.\footnote{These
+  results on \original must be interpreted cautiously, however. The
+  same sentences, albeit in different SPairs, occur in both the
+  training and testing data for a given fold. This issue does not
+  affect \twitter.} However, this experimental setup does not show the
+extent to which the supervised approach is able to generalize to
+previously-unseen lemmas.
+
+%%MK Do we want to remove "Moreover, for each dataset, the best supervised correlation
+%%is better than the best unsupervised correlation" ?. This is redundant now that we say all supervised setups outperform their unsupervised setup.
+
+%% does show whether a supervised approach to USim is able to generalize
+
+
+
+The column labeled ``Lemma'' in \tabref{tab:otherresults} shows
+results for the supervised approach for cross-validation using
+lemma-based partitioning. Here the test data consists of usages of a
+target lemma that was not seen as a target lemma during training. For
+each dataset, the correlations achieved here for each type of
+embedding are lower than those of the corresponding unsupervised
+method, with the exception of \glove; however, for each dataset the
+correlations achieved by \glove are still lower than those of the best
+unsupervised method on that dataset. This demonstrates that the
+supervised approach generalizes poorly to new lemmas. This negative
+result indicates an important direction for future work ---
+identifying strategies to training supervised approaches to predicting
+USim that generalize to unseen lemmas.
+
+%% We now consider the supervised approach for cross-validation using
+%% lemma-based partitioning. In these experiments, the test data consists
+%% of sentence pairs for a target lemma that was not seen as a target
+%% lemma during training. For each dataset, the correlations achieved
+%% here for each type of embedding are lower than those of the
+%% corresponding unsupervised method, with the exception of GloVe, and
+%% always lower than those of the best unsupervised method on that
+%% dataset. This demonstrates that the current supervised approach
+%% generalizes poorly to new lemmas. This negative result indicates an
+%% important direction for future work --- identifying strategies to
+%% training supervised approaches to predicting USim that generalize to
+%% unseen lemmas.
+
+
+%% In \tabref{tbl:results2} we evaluate five different models in seven
+%% different setups for each dataset. Along with the previously discussed
+%% unsupervised and supervised setups, we evaluate the models in each of
+%% the supervised setups --"all" and "lemma"-- but only use one of the
+%% two feature sets. "Abs Diff" is the absolute difference of the two
+%% usages' representations and "Prod" is the componentwise product of the
+%% two usages' representations.
+
+%% We achieved the highest correlation on \original in the unsupervised
+%% setup using the embeddings produced by the context2vec model. We
+%% compared these to word2vec embeddings that were trained on the same
+%% corpus as context2vec --ukWaC-- and with the same number of dimensions
+%% 600. Skip-thoughts was the only model that did not achieve a higher
+%% correlation than \cite{LuiBaldwin2012} on \original.
+
+%% In terms of the supervised "All" setup for \original, the context2vec
+%% model surprisingly achieves the lowest correlation of all the
+%% models. Further, when we evaluate each feature set, both
+%% representations that are generated by an embedding model--
+%% skip-thoughts and context2vec -- performs better with only using "Abs
+%% Diff" than "All", while the representation that is created through
+%% summing word embeddings -- word2vec models and \glove -- perform better
+%% using both feature sets. All models perform better using only "Abs
+%% Diff" than only "Prod" under the "All" setup.
+
+%% Turning to the \twitter dataset, word2vec achieved the highest
+%% correlation for all setups except the lemma separated case using both
+%% features. Word2vec was the only model to achieve a higher correlation
+%% than \cite{Gella+:2013} in the unsupervised setup. Skip-thoughts
+%% perform poorly as expected since it was not trained on a noisy corpus
+%% similar to Twitter.
+
+
+ %% As part of their evaluation, \citeauthor{Kiros+:2015} showed that
+ %% skip-thoughts out-performs previous approaches to sentence-level
+ %% relatedness on the SICK dataset \citep{Marelli+:2014}. Although our
+ %% goal is to determine the meaning of a word in context, the meaning of
+ %% a sentence could be a useful proxy for this. \citeauthor{Kiros+:2015}
+ %% released a pre-trained model, based on a corpus of books, which we
+ %% apply to infer the skip-thought vectors for each sentence in our
+ %% datasets.\footnote{Inference requires only a single sentence. The
+ %%   model is therefore able to infer skip-thought vectors for sentences
+ %%   out-of-context, and for tweets that typically do not form part of a
+ %%   larger discourse.} We then consider these vectors in the
+ %% unsupervised approach, and the supervised approach for both
+ %% cross-validation settings. Results are shown in the bottom row of
+ %% \tabref{tbl:results}.  Although this approach performed poorly in the
+ %% unsupervised setting, it achieved the highest correlation in the
+ %% ``All'' supervised setting for \original. The comparatively low
+ %% correlation here on \twitter could be due to the differences in text
+ %% type (i.e., books vs. tweets).  Based on this finding, in future
+ %% work, we intend to evaluate alternative approaches to forming
+ %% representations of sentences \citep[e.g.,][]{Le:Mikolov:2014} for the
+ %% task of predicting usage similarity.
+
+
+
+%% A number of approaches to representing the meaning of sentences have
+%% recently been proposed.
+
+
+
+
+%% In preliminary experiments, we tested with different parameters for
+%% the size of the window around the word whose usage similarity is
+%% being calculated. This means we only summed the embeddings of the
+%% words within this window from that word. In preliminary
+%% experiments, we discovered that a window, that viewed all words in
+%% the sentence, shown to produce better results in terms of
+%% correlation with the gold standard.
+
+
+
+
+
+% Big table of results and discussion
+%% \begin{table*}
+%% \centering
+%% \small
+%% \parbox{.45\linewidth}{
+
+%% \begin{tabular}{ c | c | c }
+%% W &  Dimen & Rho\\
+%% \hline		
+
+%% 1 & 50 & 0.266 \\ 
+%% 1 & 100 & 0.268 \\ 
+%% 1 & 300 & 0.273 \\ 
+%% 2 & 50 & 0.292 \\ 
+%% 2 & 100 & 0.325 \\ 
+%% 2 & 300 & 0.286 \\ 
+%% 5 & 50 & 0.282 \\ 
+%% 5 & 100 & 0.301 \\ 
+%% 5 & 300 & 0.296 \\ 
+%% 8 & 50 & 0.286 \\ 
+%% 8 & 100 & 0.287 \\ 
+%% 8 & 300 & 0.298 \\ 
+%% 10 & 50 & 0.280 \\ 
+%% 10 & 100 & 0.275 \\ 
+%% 10 & 300 & Training \\ 
+%%   \hline 
+
+%% \end{tabular}
+%% \caption{Results on the dataset used by \cite{Gella+:2013}  using embeddings trained on content from Twitter. W = training Window
+%% Dimen = dimension of the embeddings used. The Skipgram model was used}\label{tab:accents}
+%% }
+%% \parbox{.45\linewidth}{
+%% \begin{tabular}{ c | c | c }
+
+%% W &  Dimen & Rho\\	
+%% \hline		
+
+%% 1 & 50 & 0.221 \\ 
+%% 1 & 100 & 0.248 \\ 
+%% 1 & 300 & 0.262 \\ 
+%% 2 & 50 & 0.229 \\ 
+%% 2 & 100 & 0.259 \\ 
+%% 2 & 300 & 0.278 \\ 
+%% 5 & 50 & 0.259 \\ 
+%% 5 & 100 & 0.269 \\ 
+%% 5 & 300 & 0.279 \\ 
+%% 8 & 50 & 0.285 \\ 
+%% 8 & 100 & 0.275 \\ 
+%% 8 & 300 & 0.280 \\ 
+%% 10 & 50 & 0.275 \\
+%% 10 & 100 & Training \\
+%% 10 & 300 & 0.280 \\ 
+%% \hline
+%% \end{tabular}
+%% \caption{Results on the dataset used by \cite{LuiBaldwin2012} using embeddings trained on the corpus containing content from Wikipedia. W = training Window
+%% Dimen = dimension of the embeddings used. The Skipgram model was used.}\label{tab:accents}
+%% }
+%% \parbox{.45\linewidth}{
+%% \begin{tabular}{ c | c | c }
+%% W &  Dimen & Rho\\
+%% \hline
+%% 1 & 50 & training\\
+%% 1 & 100 & training\\
+%% 1 & 300 & training\\
+%% 2 & 50 & 0.153 \\ 
+%% 2 & 100 & 0.163 \\ 
+%% 2 & 300 & 0.177 \\ 
+%% 5 & 50 & 0.173 \\ 
+%% 5 & 100 & 0.187 \\ 
+%% 5 & 300 & 0.193 \\ 
+%% 8 & 50 & 0.172 \\ 
+%% 8 & 100 & 0.186 \\ 
+%% 8 & 300 & 0.194 \\
+%% 10 & 50 & training \\
+%% 10 & 100 & training \\
+%% 10 & 300 & training \\
+%% \hline 
+%% \end{tabular}
+%% \caption{Results on the dataset used by \cite{LuiBaldwin2012} using embeddings trained on the corpus containing content from Wikipedia. W = training Window
+%% Dimen = dimension of the embeddings used. The CBOW model was used.}\label{tab:accents}
+%% }
+%% \parbox{.45\linewidth}{
+%% \begin{tabular}{ c | c | c }
+%% W &  Dimen & Rho\\
+%% \hline
+%% 1 & 50 & Training \\
+%% 1 & 100 & Training \\
+%% 1 & 300 & Training \\
+%% 2 & 50 & 0.126 \\ 
+%% 2 & 100 & 0.169 \\ 
+%% 2 & 300 & Training \\
+%% 5 & 50 & Training \\
+%% 5 & 100 & Training \\
+%% 5 & 300 & Training \\
+%% 8 & 50 & 0.165 \\ 
+%% 8 & 100 & 0.189 \\ 
+%% 8 & 300 & 0.200 \\
+%% 10 & 50 & Training \\
+%% 10 & 100 & Training \\
+%% 10 & 300 & Training \\
+
+%% \end{tabular}
+%% \caption{Results on the dataset used by \cite{LuiBaldwin2012} using embeddings trained on the corpus containing content from Twitter. W = training Window
+%% Dimen = dimension of the embeddings used. The CBOW model was used.}\label{tab:accents}
+%% }
+
+%% \parbox{.45\linewidth}{
+%% \begin{tabular}{ c | c | c  | c}
+%% w  &  D  &  CosRho  &  Regression rhou \\
+%% \hline
+
+%% 1 & 50 & 0.221 & 0.236 \\ 
+%% 1 & 100 & 0.248 & 0.291 \\ 
+%% 1 & 300 & 0.262 & 0.394 \\ 
+%% 2 & 50 & 0.229 & 0.305 \\ 
+%% 2 & 100 & 0.259 & 0.335 \\ 
+%% 2 & 300 & 0.278 & 0.42 \\ 
+%% 5 & 50 & 0.259 & 0.309 \\ 
+%% 5 & 100 & 0.269 & 0.355 \\ 
+%% 5 & 300 & 0.279 & 0.387 \\ 
+%% 8 & 50 & 0.285 & 0.325 \\ 
+%% 8 & 100 & 0.275 & 0.352 \\ 
+%% 8 & 300 & 0.28 & 0.407 \\ 
+%% 10 & 50 & 0.275 & 0.323 \\ 
+%% \end{tabular}
+%% \caption{Original Dataset. Rho regression with skip thought gets 0.365}\label{tab:accents}
+%% }
+
+%% \parbox{.45\linewidth}{
+%% \begin{tabular}{ c | c | c  | c}
+%% w  &  D  &  CosRho  &  Regression rhou \\
+%% \hline
+
+%% 1 & 50 & 0.212 & 0.137 \\ 
+%% 1 & 100 & 0.275 & 0.14 \\ 
+%% 1 & 300 & 0.286 & 0.044 \\ 
+%% 2 & 50 & 0.236 & 0.119 \\ 
+%% 2 & 100 & 0.309 & 0.139 \\ 
+%% 2 & 300 & 0.319 & 0.125 \\ 
+%% 5 & 50 & 0.285 & 0.157 \\ 
+%% 5 & 100 & 0.322 & 0.159 \\ 
+%% 5 & 300 & 0.351 & 0.148 \\ 
+%% 8 & 50 & 0.304 & 0.186 \\ 
+%% 8 & 100 & 0.326 & 0.207 \\ 
+%% 8 & 300 & 0.364 & 0.1 \\ 
+%% 10 & 50 & 0.309 & 0.196 \\ 
+%% 10 & 100 & 0.322 & 0.123 \\ 
+%% \end{tabular}
+%% \caption{Titter Dataset.}\label{tab:accents}
+%% }
+%% \end{table*}
+
+
+
+\section{Conclusions\label{sec:conclusions}}
+
+%% Usage similarity is an approach to determining word meaning in context
+%% that does not rely on a sense inventory. For text types that have a
+%% relatively high rate of out-of-vocabulary words, such as social media
+%% text, many words will be missing from sense inventories. Compared to
+%% approaches to determining token-level word meaning such as word-sense
+%% disambiguation which rely on a sense inventory, usage similarity
+%% therefore seems particularly well-suited to such text types
+
+%% Word senses are not discrete, and multiple senses are often applicable
+%% for a given usage of a word. USim is an approach to
+%% determining word meaning in context that does not rely on a sense
+%% inventory, and therefore addresses these concerns. For text types that
+%% have a relatively-high rate of out-of-vocabulary words, such as social
+%% media text, many words will be missing from sense inventories; usage
+%% similarity therefore seems particularly well-suited to such text
+%% types, compared to approaches such as word-sense disambiguation which
+%% rely on a sense inventory.
+
+
+Word senses are not discrete, and multiple senses are often applicable
+for a given usage of a word. Moreover, for text types that have a
+relatively-high rate of out-of-vocabulary words, such as social media
+text, many words will be missing from sense inventories. USim is an
+approach to determining word meaning in context that does not rely on
+a sense inventory, addressing these concerns.
+
+
+%% We presented an unsupervised approach to measuring USim
+%% based on word embeddings that achieved state-of-the-art performance on
+%% two USim datasets, one based on Twitter text, the other
+%% based on more-conventional texts. We further considered a supervised
+%% approach to USim, and showed that although it outperforms
+%% unsupervised approaches, it is unable to generalize to lemmas that are
+%% unseen in the training data.
+
+%% We presented an unsupervised approach to measuring usage similarity
+%% based on word embeddings that achieved state-of-the-art performance on
+%% two usage similarity datasets, based on Twitter and more-conventional
+%% text, respectively. We further considered a supervised approach to
+%% usage similarity, and showed that although it outperforms unsupervised
+%% approaches, it is unable to generalize to lemmas that are unseen in
+%% the training data.
+
+We proposed unsupervised approaches to USim based on embeddings for
+words, contexts, and sentences. We achieved state-of-the-art results
+over USim datasets based on Twitter text and more-conventional
+texts. We further considered supervised approaches to USim based on
+these same methods for forming embeddings, and found that although
+these methods outperformed the unsupervised approaches, they performed
+poorly on lemmas that were unseen in the training data. In future work
+we intend to consider alternative strategies to training supervised
+approaches to USim in an effort to achieve better performance on
+unseen lemmas.
+
+
+%% Future work:
+%% training strategies
+
+%% Alternative things like skip thoughts: doc2vec, DJ's new thing
+
+%% These are really representing the meaning of a document though. We
+%% intend to look at alternative ways to form vector representations
+%% of tokens.
+
+%% Future work! For the Lemma case, for a given fold, we should
+%% do some sort of cross-validation within the training data, to
+%% determine the model parameters that best generalize to an unseen
+%% lemma; possibly we should also include the cosine between the two
+%% vectors as a feature?
+
+%% Future work: Train a support vector regressor
+
+
+
+%% \setlength{\baselineskip}{0.9\baselineskip}
+
+
+
+
+%\bibliographystyle{acl_natbib}
+
+\bibliography{../bibtex/big}
+\bibliographystyle{acl_natbib}
+%\bibliographystyle{eacl2017}
+
+
+\end{document}
+
+
+

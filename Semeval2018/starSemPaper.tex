@@ -1,0 +1,428 @@
+%
+% File naaclhlt2018.tex
+%
+%% Based on the style files for NAACL-HLT 2018, which were
+%% Based on the style files for ACL-2015, with some improvements
+%%  taken from the NAACL-2016 style
+%% Based on the style files for ACL-2014, which were, in turn,
+%% based on ACL-2013, ACL-2012, ACL-2011, ACL-2010, ACL-IJCNLP-2009,
+%% EACL-2009, IJCNLP-2008...
+%% Based on the style files for EACL 2006 by 
+%%e.agirre@ehu.es or Sergi.Balari@uab.es
+%% and that of ACL 08 by Joakim Nivre and Noah Smith
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[hyperref]{naaclhlt2018}
+\usepackage{times}
+\usepackage{latexsym}
+
+\usepackage{xspace}
+\usepackage{multirow}
+\usepackage{url}
+
+\usepackage{amssymb}
+
+
+\newcommand{\posciteauthor}[1]{\citeauthor{#1}'s}
+\newcommand{\poscite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\secsref}[2]{Sections~\ref{#1} and \ref{#2}}
+\newcommand{\sentref}[1]{(\ref{#1})}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\tabsref}[2]{Tables~\ref{#1} and \ref{#2}}
+
+
+%\aclfinalcopy % Uncomment this line for all SemEval submissions
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+\newcommand\BibTeX{B{\sc ib}\TeX}
+
+%Title format for system description papers by task participants
+\title{UNBNLP at SemEval-2018 Task 10: Evaluating unsupervised
+  approaches to capturing discriminative attributes}
+%Title format for task description papers by task organizers
+%\title{SemEval-2018 Task [TaskNumber]:  [Task Name]}
+
+
+
+
+
+\author{First Author \\
+  Affiliation / Address line 1 \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  {\tt email@domain} \\\And
+  Second Author \\
+  Affiliation / Address line 1 \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  {\tt email@domain} \\}
+
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+%% TODO: Update
+
+In this paper, we discuss our models that we submitted to the
+SemEval-2018's task 10 as well as further experiments that were
+performed on this task. The task requires a model to predict if an
+attribute is a discriminative attribute between two given words. Both
+of our submissions for the task were unsupervised, but we conducted
+experiments under a supervised setup to further investigate the
+task. We compare a total of four different unsupervised models as well
+as two supervised models. We use information from WordNet, word2vec,
+and sentence-level co-occurrences in these experiments.
+\end{abstract}
+
+\section{Introduction}
+
+In the task of capturing discriminative attributes, a system is
+presented with three words, and must determine whether the third word
+--- the attribute --- characterizes the first word, but not the
+second. For example, for the triple
+(\emph{chicken},\emph{bread},\emph{legs}), \emph{legs} is a
+discriminative attribute because chickens typically have legs, but
+bread typically does not. On the other hand, for the triple
+(\emph{mother},\emph{woman},\emph{female}), \emph{female} is not a
+discriminative attribute because both mothers and women are typically
+female. In the case of the triple
+(\emph{brush},\emph{chocolate},\emph{chicken}), \emph{chicken} is not
+a discriminative attribute because there is no clear relationship
+between chicken and brushes, or between chicken and chocolate.
+
+In this paper we focus primarily on unsupervised approaches to the
+task of capturing discriminative attributes. We consider three
+unsupervised models drawing on information from word embeddings,
+WordNet \citep{Fellbaum1998}, and sentence-level word co-occurrence
+frequency. We then consider three approaches to combining information
+from these models: one unsupervised majority vote approach, and two
+supervised approaches. Somewhat surprisingly, we achieve our best F1
+score of 0.61 with the remarkably simple approach based on word
+co-occurrence, which corresponds to one of our official runs submitted
+to the shared task; none of the approaches to model combination
+improve over this.
+
+
+
+%% discuss our submissions to SemEval-2018 Task 10
+%% Capturing Discriminative Attributes, as well as additional experiments
+
+
+%% Both of our submissions achieved an average F-score of $0.61$, which
+%% scores us around the middle of the minimum ($0.49$) and maximum
+%% ($0.75$) scores reported by the task's organizers. 
+
+%% Our models gather information form a variety of resources including
+%% WordNet\citep{Fellbaum1998}, word2vec's skip-gram model trained on a
+%% snapshot of the English Wikipedia, and sentence level co-occurrences
+%% calculated over the ukWaC corpus \citep{Ferraresi2008}.  
+
+%% WordNet is a human constructed semantic lexicon, which contains
+%% English words and their synsets and their other relations such as
+%% hyponym, hypernym, meronym and etc.
+
+%% It also includes a definition and
+%% some examples for words. This information could be a helpful resource
+%% in the way of gaining an understanding about discrimination relation
+%% between two words.
+
+%Ali WordNet description
+%MK do we need a description of word2vec in introduction?
+%MK Discuss that word2vec has worked better on other tasks?
+
+  
+\section{Base models} \label{individual}
+
+In this section, we discuss three unsupervised models for identifying
+discriminative attributes that incorporate information from word
+embeddings, WordNet, and word co-occurrences. We refer to these models
+as ``base models''. In \secref{sec:combined} we describe unsupervised
+and supervised approaches to combining these base models. Throughout
+the description of our models we refer to the words in the triples in
+the dataset as word1, word2, and attribute, respectively.
+
+\begin{table*}[ht]
+\centering
+{\small%
+	\begin{tabular}{ |c|c|c|c|c|c|c|c|c| } 
+ 		\hline
+ 		Definition & Example & Lemma & \multicolumn{1}{|p{1cm}|}{\centering Hypernym \\ level1} & \multicolumn{1}{|p{1cm}|}{\centering Hypernym \\ level2} & \multicolumn{1}{|p{1cm}|}{\centering Hypernym \\ level3} & Meronym & Train & Validation \\ 
+ 		\hline
+ 		w1,w2,atr & w1,w2,atr & w1,w2,atr & w1,w2,atr & w1,w2,atr & w1,w2,atr & w1,w2,atr & 0.543 & 0.544\\
+ 		\hline
+ 		w1,w2,atr & w1,w2,atr & w1,w2,atr & w1,w2 & w1,w2 & w1,w2 & w1,w2 & 0.588 & 0.566\\
+ 		\hline
+ 		w1,w2,atr & w1,w2,atr & w1,w2,atr & w1,w2 & w1,w2 & w1,w2 & w1 & 0.592 & \textbf{0.567} \\
+ 		\hline
+ 		w1,w2,atr & w1,w2,atr & w1,w2,atr & w1 &  &  &  & 0.590 & 0.553 \\
+ 		\hline
+ 		w1,w2,atr & w1,w2,atr & w1,w2,atr & &  &  &  & 0.589 & 0.553 \\
+ 		\hline
+ 		w1,w2,atr & w1,w2,atr & w1,w2,atr & w1,w2 &  &  & w1,w2 & \textbf{0.598} & 0.565 \\
+ 		\hline 
+	\end{tabular}%
+}
+\caption{Results from different configuration on train and validation dataset} 
+\end{table*}
+
+
+
+\subsection{Word2vec\label{sec:word2vec}}
+
+If an attribute is a discriminative attribute for word1, then we
+hypothesize that word1 and the attribute will be more
+semantically similar than word2 and the attribute. We use similarity
+of word embeddings as a proxy for semantic similarity.
+
+We train word2vec's skip-gram model \citep{mikolov+:2013b} on a
+snapshot of English Wikipedia from 1 September 2015 containing roughly
+2.6 billion tokens, tokenized using the tokenizer available in the
+Stanford CoreNLP tools
+\citep{manning-EtAl}.\footnote{\url{http://nlp.stanford.edu/software/corenlp.shtml}}
+We use a window size of $\pm$ 8 and 300 dimensions. We remove all
+words that occur less than 15 times in the corpus, and all words that
+are present in a publicly available stop word
+list.\footnote{\url{http://www.lextek.com/manuals/onix/stopwords1.html}}
+We did not set a maximum vocabulary size. We train our model using
+negative sampling, and set the number of training epochs to 5.
+
+We then calculate the cosine similarity between the word embeddings
+for word1 and the attribute
+($\mathrm{cos}(\mathrm{word1},\mathrm{attribute})$), and word2 and the
+attribute ($\mathrm{cos}(\mathrm{word2},\mathrm{attribute})$). We
+label the instance as a discriminative attribute if
+$\mathrm{cos}(\mathrm{word1},\mathrm{attribute})$ is greater than
+$\mathrm{cos}(\mathrm{word2},\mathrm{attribute})$.
+
+
+\subsection{WordNet\label{sec:wordnet}}
+
+%% TODO: Revise based on the table that Ali added
+
+
+In this approach we again hypothesize that if an attribute is a
+discriminative attribute for word1, then word1 and the attribute will
+be more similar than word2 and the attribute. Here, however, we take
+an approach loosely inspired by \cite{Lesk:1986} and
+\citep{Banerjee:Pedersen:2002}, and measure similarity based on word
+overlap in definitions, and information available through various
+lexical relations, in WordNet \citep{Fellbaum1998}.
+
+Each of word1, word2, and the attribute is represented by a set of
+words that includes, for each synset for the word, all words in the
+definition and example sentences, excluding stopwords, based on a
+simple regular expression-based approach to tokenization. The set of
+words representing each of word1 and word2 additionally includes the
+words in the definitions and example sentences for the first hypernym
+and meronym of each of that word's synsets. Casefolding was applied to
+all words in the sets of words representing word1, word2, and the
+attribute.
+
+%% TODO: Explain that we considered further configurations for this, but
+%% this was found to work best on dev data
+
+An instance is labeled as a discriminating attribute if the size of
+the intersection of the set of words representing word1 and the set of
+words representing the attribute is greater than that between the set
+of words representing word2 and the set of words representing the
+attribute.
+
+
+\subsection{Word co-occurrence\label{sec:cooccurrence}}
+
+We hypothesize that if an attribute is a discriminative attribute for
+word1, then word1 and the attribute will co-occur more frequently than
+word2 and the attribute. Various definitions of co-occurrence could be
+used to operationalize this, for example, co-occurrence within a
+window of $\pm n$ words, a sentence, or a document. In this
+preliminary work we consider co-occurrence within a sentence.
+
+We calculate sentence-level co-occurrences for each pair of
+(word1,attribute) and (word2,attribute) in the provided datasets using
+the ukWaC \citep{Ferraresi2008}, a corpus of roughly 1.9 billion
+tokens automatically constructed from a web crawl of the \url{.uk}
+domain. This model then predicts that an attribute is a discriminative
+attribute if the number of sentences in which word1 and the attribute
+co-occur is greater than the number of sentences in which word2 and
+the attribute co-occur. Based on its performance on the validation
+data, this model was submitted as one of our two official runs.
+
+\section{Combined models\label{sec:combined}}
+
+In this section, we consider one unsupervised, and two supervised,
+approaches to combining the individual models discussed in Section
+\ref{individual}
+
+\subsection{Majority vote}
+
+In this unsupervised approach we use a majority vote of the output of
+the word2vec, WordNet, and word co-occurrence models. We label an
+attribute as a discriminative attribute if at least two of the three
+models predict that it is. This approach was submitted as our second
+official run, again based on its performance over the validation data,
+and because we are particularly interested in unsupervised approaches
+to this task.
+
+\subsection{Supervised: Output\label{sec:supervised:output}}
+
+In this supervised approach, we represent each instance as a vector of
+three binary features, corresponding to the output of the word2vec,
+WordNet, and word co-occurrence models. We then train a logistic
+regression classifier on these representations of the
+instances. Specifically, we use the logistic regression implementation
+available in scikit-learn \citep{scikit-learn}, with l2 normalization
+using the liblinear solver for a maximum of 100 iterations and a
+stopping criteria of 0.0001.
+
+\subsection{Supervised: Features}
+
+In this supervised approach we use a total of 8 features that are
+based on the information used by the word2vec, WordNet, and word
+co-occurrence models. The following features are used:
+
+\begin{enumerate}
+%% @MK: What you wrote says that this feature is based on a difference,
+%% but it's not clear what is subtracted. Did I revise this correctly?
+
+%% the difference of the cosine similarity of the word embedding for the
+%% first word and the attribute, 
+\item the cosine similarity between the word embeddings for word1 and
+  the attribute, based on the word2vec approach
+  (\secref{sec:word2vec});
+
+%% the difference of the cosine similarity for the word embedding for the
+%% second word and the attribute, 
+
+\item the cosine similarity between the word embeddings for word2 and
+  the attribute;
+
+\item the size of the intersection between the set of words
+  representing word1 and the set of words representing the attribute,
+  as formed for the WordNet approach (\secref{sec:wordnet});
+
+\item the size of the intersection between the set of words
+  representing word2 and the set of words representing the attribute;
+
+\item $3 - 4$, i.e., the difference between the previous two
+  features;
+
+\item the number of times word1 and the attribute co-occur, using the
+  sentence-level approach to co-occurrence
+  (\secref{sec:cooccurrence});
+
+\item the number of times word2 and the attribute co-occur;
+
+\item $6 - 7$, i.e., the difference between the previous two features.
+
+\end{enumerate}
+
+\noindent
+Similarly to the Supervised: Output approach
+(\secref{sec:supervised:output}), we train a logistic regression
+classifier (using the same settings as for that model) on these
+representations of the instances
+
+\section{Results}
+
+\begin{table}
+%\setlength{\tabcolsep}{0.5em}
+\begin{center}
+\begin{tabular}{clcc}
+& \multirow{2}{*}{Model} & \multicolumn{2}{c}{Average F1} \\
+%% \cline{2-3} 
+& & Validation & Test\\
+\hline
+& Word2vec             & 0.57 & 0.58 \\
+& WordNet              & 0.57 & 0.56 \\
+\checkmark & Word co-occurrence   & \textbf{0.61} & \textbf{0.61} \\
+\checkmark & Majority vote        & 0.60 & \textbf{0.61} \\
+& Supervised: Output    & 0.59 & \textbf{0.61} \\
+& Supervised: Features  & 0.60 & 0.59
+\end{tabular}
+\caption{Average F1 score for each of our models on the validation and
+  test sets. Officially submitted runs are indicated with
+  checkmarks. The highest F1 for each dataset is shown in
+  boldface.\label{results}}
+\end{center}
+\end{table}
+
+%% @MK Fill in the XX's below for the xval details
+
+\tabref{results}, shows the average F1 score for each of our models on
+the validation and test sets. For the test set, the supervised models
+(Supervised: Output and Supervised: Features) were trained on the
+validation data, and tested on the test set; for the validation data,
+results for the supervised models are for XX times XX-fold
+cross-validation.\footnote{We did not use the training data, which was
+  not constructed in the same way as the test data, for training our
+  supervised models. In preliminary experiments we considered models
+  trained on the training data, and tested on the validation data, but
+  found the performance to be relatively poor.}
+
+On the validation data, the word co-occurrence model achieved the
+highest F1 of the base models of 0.61, and indeed the highest F1
+overall; none of the approaches to combining information from the base
+models (i.e., majority vote, supervised: output, or supervised:
+features) improved over the word co-occurrence model. The word
+co-occurrence model was therefore submitted as an official run.  The
+majority vote and supervised: features models achieved the next best
+F1 of 0.60. Keeping with our primary interest of exploring
+unsupervised approaches to this task, the majority vote model was
+selected as our second official run.
+
+Turning to results on the test set, the word co-occurrence, majority
+vote, and supervised: output models all achieved the highest F1 of
+0.61. That the word-cooccurrence model outperforms the other two base
+models --- word2vec and WordNet --- shows that sentence-level word
+co-occurrence is more informative about discriminative attributes than
+the information carried by word embeddings and the information
+available in WordNet, at least as it has been incorporated in these
+models. That none of the combined models is able to improve on the
+best base model suggests that, although these models are based on very
+different sources of information, they are not complementary.
+
+\section{Conclusion}
+
+%% Future work:
+%% Other types of cooccurrence
+%% Use measures of strength of association
+%% Use well-known word2net similarity measures (JCN, Resnik, etc.)
+
+
+%% TODO: Update
+
+In this paper we evaluated a variety of model on the dataset provided
+by SemEval-2018 Task 10. We compared both unsupervised models and
+supervised models. To our surprise, our unsupervised model
+---co-occurrences--- achieved the best performance along with our
+majority-vote ensemble model and supervised output model. The fact
+that both textual based models ---word2vec and co-occurrences---
+outperform WordNet, that relies on structured data, shows that
+information pertaining to discriminative attributes can leveraged from
+textual data alone and gives a direction as to where future research
+should be performed. The performance of the co-occurrences model
+suggests that words that occur in the same sentence are more likely to
+be a discriminative attribute. 
+
+
+This model looks at the entire sentence when calculating the
+co-occurrences, but it might be more useful to only look at words that
+appear within a given window of a target word to generate window-level
+co-occurrences as apposed to sentence level occurrences. Similarly,
+the window that word2vec is trained on can be altered and might
+perform better given a smaller window.
+
+%% TODO: Acknowledgements
+
+\bibliography{../bibtex/big}
+\bibliographystyle{acl_natbib}
+
+
+\end{document}

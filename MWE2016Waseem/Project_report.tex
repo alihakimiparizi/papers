@@ -1,0 +1,368 @@
+%
+% File acl2016.tex
+%
+%% Based on the style files for ACL-2015, with some improvements
+%%  taken from the NAACL-2016 style
+%% Based on the style files for ACL-2014, which were, in turn,
+%% Based on the style files for ACL-2013, which were, in turn,
+%% Based on the style files for ACL-2012, which were, in turn,
+%% based on the style files for ACL-2011, which were, in turn, 
+%% based on the style files for ACL-2010, which were, in turn, 
+%% based on the style files for ACL-IJCNLP-2009, which were, in turn,
+%% based on the style files for EACL-2009 and IJCNLP-2008...
+
+%% Based on the style files for EACL 2006 by 
+%%e.agirre@ehu.es or Sergi.Balari@uab.es
+%% and that of ACL 08 by Joakim Nivre and Noah Smith
+
+\documentclass[11pt]{article}
+\usepackage{acl2016}
+\usepackage{times}
+\usepackage{url}
+\usepackage{latexsym}
+\usepackage{lipsum}
+\usepackage{multicol}
+%\usepackage{cite}
+
+%\aclfinalcopy % Uncomment this line for the final submission
+%\def\aclpaperid{***} %  Enter the acl Paper ID here
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+\newcommand\BibTeX{B{\sc ib}\TeX}
+
+\title{A Word Embedding Approach for Multiword Expression Classification}
+
+\author{Waseem Gharbieh \\
+  University of New Brunswick / Canada \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  {\tt wgharbie@unb.ca} \\\And
+  Paul Cook \\
+  University of New Brunswick / Canada \\
+  Affiliation / Address line 2 \\
+  Affiliation / Address line 3 \\
+  {\tt paul.cook@unb.ca} \\}
+
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Recent advances in Natural Language Processing (NLP) have given rise to neural network based models that are capable of capturing the distributed
+representations of  words as dense vectors. In this work, our task is to
+identify whether a Multi-Word Expression (MWE) has been used literally
+or idiomatically. An MWE is a sequence of two or more words that has
+properties that are not predictable from the properties of its
+individual words or their normal mode of combination such as blow the
+whistle and kick the bucket. To do this, we explore the ability of one
+of these word vector models - Word2vec - using different parameters to
+extract features from the sentences in the VNC Tokens dataset. This
+dataset contains a number of MWEs that are composed of a verb and a noun
+that have been used either literally or idiomatically. The features
+extracted by Word2vec are then fed into two machine learning algorithms:
+linear regression and SVM. We also explore the best performing
+parameters on the VNC Tokens dataset to identify German MWEs that are
+composed of a preposition, a noun, and a verb. The results indicate that
+we were able to reduce the amount of errors for token level classification by 31.8\% compared to state-of-the-art.
+
+\end{abstract}
+
+\section{Introduction}
+
+An MWE is a sequence of two or more words that has properties that are not predictable from the properties of its individual words or their normal mode of combination such as blow the whistle and kick the bucket. In this work, our task is to identify whether an MWE has been used literally or idiomatically. We tackle two main problems in MWE classification: token level classification, and type level classification. In token level classification, the objective is to classify whether a novel usage of a known MWE is literal or idiomatic. On the other hand, the objective of type level classification is to classify whether a novel MWE has been used literally or idiomatically. What makes this problem even harder is that human language is very diversified and therefore it can be difficult to come up with a universal set of features that can enable machines to classify literal and idiomatic MWEs to a desired accuracy. That being said, it is important to keep in mind that MWE classification is not a binary task but rather lies on a continuum which raises the issue of ambiguity when classifying MWEs. Generally, humans are very skilful in both tasks as MWEs compose a sizeable amount of an individual's vocabulary.  ~\cite{jackendoff1997architecture} estimates that the number of MWEs used by an individual's vocabulary is of the same order of magnitude as the number of words in their vocabulary and new MWEs are being invented all the time. All of these factors introduce an additional layer of complexity to human language that machines should be capable of tackling. 
+
+We explore the effectiveness of the features extracted using word embeddings for classifying MWEs at the token and type levels. For token level classification, a supervised learning model is implemented on datasets from two languages (English and German) and the potential of unsupervised learning models is investigated on the English dataset. The implemented supervised learning model is then tested for MWE classification at the type level on the English dataset. 
+
+%Talk about the issues that MWEs introduce to NLP and the solutions that word2vec introduced to the field.
+
+\section{Related Work}
+
+In this section we discuss the advances in the areas related to our work. This involves word vector models and prior work on MWE classification.  
+%Related Work is composed of two parts: Word2vec and identifying MWEs 
+
+\subsection{Word Vector Models}
+%Talk about Word2vec
+Recent advances in NLP have given rise to neural network based models that are capable of capturing the distributed representations of  words as dense vectors such as Word2vec ~\cite{mikolov2013distributed} and GloVe ~\cite{pennington2014glove}. The distributed representations of words are captured by training these models on large datasets such as Wikipedia. The fascinating property about these models is that they are able to capture the syntactic and semantic information of tokens in an unsupervised manner. A popular example of how this information is captured is taking the vector representation of the type king, then adding the vector representation of the type woman while subtracting the vector representation of the type man. It can then be observed that the resulting vector lies closest to the vector representation of the type queen.  These representations are very useful as inputs for machine learning algorithms as the features contain a lot of information in a compact form.
+
+\subsection{MWE Classification}
+
+%Introduce MWE datasets:
+
+%Cook et al. "The VNCTokens Dataset"
+
+%Fritzinger et al. "A Survey of Idiomatic Preposition-Noun-Verb Triples on Token Level"
+
+%Discuss the methods and the specifics of the datasets below.
+
+%Mention the work done by Fazly et al. in "Unsupervised Type and Token Identification of Idiomatic Expressions"
+
+There has been some work in applying machine learning approaches for MWE classification. ~\cite{cook2007pulling} presents a supervised and unsupervised learning approaches for MWE classification. ~\cite{fazly2009unsupervised} builds on top of that by presenting a more effective supervised learning model that makes use of the context and labels an MWE instance according to the labels of the 5 instances that are closest to it. Both papers report their results on the VNC tokens dataset ~\cite{cook2008vnc} which we will also be using in this paper. We are also going to use the German PNV dataset ~\cite{fritzinger2010survey} to report the performance of the supervised learning model. 
+
+
+The rest of this paper is organized as follows: Section 3 discusses the model at a conceptual level. Section 4 mentions the parameter settings and the datasets used for our evaluations. Section 5 displays the results of our supervised models for token level MWE classification on the datasets, and investigates the use of unsupervised learning for MWE identification. The results of our supervised models on type level MWE classification are also presented. Section 6 lays out the conclusions and section 7 discusses possible directions of future work. 
+
+\section{Model}
+
+%Discuss the model at a conceptual level. Explain the approach and compare it to previous approaches. Put forth and discuss the hypothesis for why the new approach works better.
+Our approach is divided into two main stages: Extracting MWE features using Word2vec from the input sentence and running a machine learning algorithm on those features. The features extracted from the input sentence are: The embedding of the lemmatized form of the MWE, the embedding for the context tokens surrounding the MWE, and a binary feature indicating whether the MWE is in its lemmatized form or not.
+
+The embedding for the MWE is formed by averaging the embeddings of the tokens forming the lemmatized form of the MWE. Similarly, the embedding for the context tokens is formed by averaging the embeddings of those tokens. More precisely, the embedding for the context of each token forming the MWE is averaged separately first as shown by equation 1:
+
+\begin{equation}
+c_j = \frac{1}{2k} \sum_{i=-k, i \neq 0}^{k} w^j_{t-i}
+\end{equation}
+
+
+where $k$ is the window size that the Word2vec model has been trained on, and $w^j_t$ is the embedding of the token forming the $j$th component of the MWE in position $t$ of the input sentence. Note that the tokens forming the MWE are not part of the context. The summation is done over the window size that the Word2vec model has been trained on as this ensures that the context vector formed captures the information that the Word2vec model has learned to capture.  After computing $c_j$ for all the tokens forming the MWE, the context vector can now be calculated as:
+
+\begin{equation}
+c = \frac{1}{n} \sum_{i=1}^{n} c_i
+\end{equation}
+
+where $n$ is the number of tokens forming the MWE. This method of feature extraction is conceptually similar to that of \cite{fazly2009unsupervised} but the context vector is formed by using the distributed representations from the Word2vec model instead of the distributional ones. Our method also forms a vector for each token in the MWE and then averages those vectors to obtain the context vector instead of just taking the words that co-occur with the MWE.
+
+Finally, the difference between the MWE embedding and $c$, and the binary feature indicating whether the MWE is in its base form or not, is fed into a machine learning algorithm such as logistic regression or linear SVM. For clustering algorithms, it was found that inputting the normalized vector of that resulting from the difference between the MWE embedding and $c$ without the binary feature works best.
+
+\section{Materials and Methods}
+
+The gensim\footnote{\url{https://radimrehurek.com/gensim/}} implementation of the skip gram version of Word2Vec was used and the scikit-learn implementation of logistic regression, linear SVM, Gaussian Mixture Model (GMM), and k-means were used ~\cite{pedregosa2011scikit}. We experimented our method on the VNC Tokens dataset, and the PNV dataset. 
+%Mention the parameter settings of the Word2vec model and the use of the Stanford Tokenizer on Wikipedia. Put implementation details in this section. 
+
+\subsection{Model Parameters}
+
+For the VNC Tokens dataset, the Word2vec model was trained on the September 2015 snapshot of the English Wikipedia that has been tokenized using the Stanford Tokenizer tool. Tokens occurring less than 15 times were removed and the negative sampling parameter was set to 5. For the PNV Tokens dataset, The Word2vec model was trained on the March 2016 German Wikipedia dump that has been tokenized using the Stanford Tokenizer tool. Tokens occurring less than 15 times were also removed and the negative sampling parameter was set to 5 as before. Preliminary experiments has shown that using a large negative sampling parameter resulted in worse performance.
+
+\subsection{Datasets}
+
+\subsubsection{VNC Tokens Dataset}
+
+%Describe dataset from SINGLEX website
+
+The VNC tokens dataset contains a collection of MWEs that are composed of a verb and a noun. 53 MWEs were extracted from the BNC corpus of which 25 make up the skewed subset, 14 make up the dev subset, and the remaining 14 make up the test subset. The skewed subset contains 298 literal instances and 1270 idiomatic ones, the dev subset contains 232 literal instances and 362 idiomatic ones, and the test set contained 225 literal instances and 388 idiomatic ones.
+
+Every line in the dataset provides four pieces of information: The annotation of the MWE, the lemmatized form of the verb and noun in the MWE, the file name in which the corresponding MWE exists and its sentence number in that file. Since the BNC corpus provides the lemmatized form of the words along with the sentence number, the information present in the dataset is sufficient to find the required instance of an MWE. In our implementation, we used the BNC Corpus Reader tool from NLTK to extract the MWEs from the BNC files. 
+
+While preprocessing this dataset, only the MWEs belonging to the dev and test subsets were considered since they contain a comparable amount of literal and idiomatic occurrences. In addition, all instances with an unknown label were dropped, keeping the instances that are either literal or idiomatic. 
+
+\subsubsection{PNV Dataset}
+
+%Describe dataset
+The PNV dataset contains a collection of German MWEs that are composed of a preposition, noun, and verb. There are 2 corpora in this dataset, a German newspaper (Frankfurter Allgemeine Zeitung or FAZ for short) and the proceedings of the European parliament, EUROPARL ~\cite{koehn2005europarl}. One particular point regarding both corpora is that they are skewed to contain more idiomatic instances. The EUROPARL corpus contains 31 literal instances and 2892 idiomatic ones while the FAZ corpus contains 364 literal instances and 6259 idiomatic ones. Therefore, the literal instances make up only 1.06\% of the EUROPARL corpus and 5.5\% of the FAZ corpus.  
+
+The dataset is written in XML format where each MWE is given as a combination of the preposition, noun, and verb in their lemmatized form. Every MWE has a number of example sentences under it. For each example there are 8 pieces of information that are provided: the annotation of the MWE, the type of determiner used with the noun, whether the preposition is fused with a definite determiner, the number of the noun, whether the expression was negated, whether the expression occurred in the beginning of the sentence, the adjacency of the PNV parts, and the query sentence. This information is given as it is believed to help identify whether an MWE is used literally or idiomatically.
+
+This dataset was  preprocessed in two steps. In the first step, only instances labelled as either literal or idiomatic were considered. In the second step, any MWE having less than two instances of each class was removed. This step was necessary as it enables one token out classification and reduces the skewness in the dataset. After preprocessing both corpora, the EUROPARL corpus contained 30 literal occurrences and 416 idiomatic occurrences while the FAZ corpus contained 356 literal occurrences and 2181 idiomatic occurrences. Therefore, after preprocessing the dataset, the percentage of literal instances rose to 6.73\% for the EUROPARL corpus and 14.03\% for the FAZ corpus.  
+
+\section{Results}
+
+In this section, we demonstrate the results of experimenting with different vector dimensions and varying window sizes on the VNC Tokens dataset. The extracted features were input into two machine learning algorithms, logistic regression and linear SVM, and their performance was then compared. The features extracted by the best performing model were also input into 2 clustering algorithms, k-means and GMM. The best performing parameters were also used to train the Word2vec model on the German Wikipedia and then run on the German PNV dataset. After displaying the results for supervised learning models on both datasets, we analyze the use of unsupervised learning models for tackling this task. We conclude this section by showing the results of using logistic regression, linear SVM, k-means, and GMM for classifying MWEs at the type level. 
+
+\subsection{Token-level MWE identification}
+
+This section deals with MWE identification at the token level. The problem can be formulated as: Given a set of examples belonging to a single MWE, how well can a program use this information to classify a novel usage of the same MWE.
+
+\subsubsection{VNC Tokens Dataset}
+
+%Put a table showing how the effect of dimensionality and window size of the model impacts its performance on the VNC Test data.
+
+For this dataset, Word2Vec models with 50,100, and 300 dimensions along with window sizes of 1,2,5, and 8 were investigated. When extracting the features of an MWE, the number of tokens surrounding the MWE is set to be equal to the window size that was used to train the Word2Vec model. In case the window size was greater than the sentence at which the MWE occurs, the sentences immediately before and after the current sentence were also used. Also, while looking for the context tokens to form the MWE vector, any token that is not in the Word2vec model's vocabulary was dropped and the next token was then taken into consideration. This process is repeated until the number of retrieved tokens becomes equal to the window size that the corresponding Word2vec model was trained on or all of the tokens in the adjacent sentences have been considered. 
+
+
+The models were evaluated using one token out evaluation. That is, for each MWE, a single instance of its type is removed while training the classifier on the rest of the instances. Once the classifier has been trained, it was used to classify the removed instance. This process is repeated until all the instances belonging to the MWE have been classified. Since both classes are roughly comparable, the macro-averaged accuracy is reported. The results of using logistic regression and linear SVM on the features obtained from various Word2vec models are shown in table 1.
+
+\begin{table*}[t]
+\centering
+\begin{tabular}{|c|c|ccc|ccc|} \hline
+\multicolumn{1}{|c|}{Window} &
+\multicolumn{1}{|c|}{Dimensions} &
+\multicolumn{3}{|c|}{Logistic Regression} &
+\multicolumn{3}{|c|}{Linear SVM} \\
+ & & 		DEV & TEST & AVG & DEV & TEST & AVG \\ \hline
+1 & 50  & 84.3 & 81.3 & 82.8 & 87.3 & 85.9 & 86.6 \\
+ & 100 & \textbf{85.2} & 83.4 & 84.3 & \textbf{88.2} & 85.5 & 86.8 \\ 
+ & 300 & 84.5 & \textbf{85.9} & \textbf{85.2} & 86.3 & \textbf{88.3} & \textbf{87.3} \\ \hline
+2 & 50  & 83.8 & 81.6 & 82.7 & 86.4 & 84.2 & 85.3 \\
+ & 100 & 84.5 & 81.2 & 82.8 & 86.7 & 84.2 & 85.4  \\ 
+ & 300 & 84.5 & 82.3 & 83.4 & 86.5 & 86.7 & 86.6 \\ \hline
+5 & 50  & 80.9 & 80.1 & 80.5 & 86.0 & 83.4 & 84.7 \\
+ & 100 & 81.6 & 80.3 & 81.0 & 85.9 & 84.2 & 85.1 \\ 
+ & 300 & 82.3 & 81.1 & 81.7 & 87.3 & 85.7 & 86.5 \\ \hline
+8 & 50  & 79.6 & 80.1 & 79.8 & 85.5 & 84.3 & 84.9 \\
+ & 100 & 79.1 & 80.5 & 79.8 & 85.6 & 85.9 & 85.8 \\ 
+ & 300 & 80.0 & 80.5 & 80.3 & 85.8 & 86.3 & 86.1  \\ \hline
+\end{tabular}
+\caption{The results of using logistic regression and SVM on different Word2vec parameters}
+\end{table*}
+
+The results reveal a general trend that Word2vec models with smaller window sizes and higher dimensions work better. This shows that the features obtained from Word2vec models with smaller window sizes and higher dimensionality tend to be more linearly separable. This is supported by the fact that Linear SVM performs better than an SVM with a non-linear kernel function for smaller window sizes. The effectiveness of the features extracted by the Word2vec model with a window of 1 can be explained by its syntactic bias. A Word2vec model with a smaller window size is able to capture syntactic information more effectively. Therefore, it can have a better representation of the literal MWE tokens than a Word2vec model that has been trained on a larger window size.    
+
+The best performing Word2vec parameters (window size of 1 with 300 dimensions) were then input into two more machine learning algorithms, k-means clustering and GMM to investigate their performance. The two clustering algorithms would classify an instance by first attributing it to a cluster and then classifying it based on the most frequent occurring classification in the corresponding cluster. We experiment using 2,3,4, and 5 clusters. The hypothesis is that by using more clusters, the classifiers would be able to capture richer representations of data. One possibility is that when there are 2 clusters, the classifiers might split the data roughly to a literal cluster and an idiomatic cluster. Using 3 clusters, the data can be split into a literal cluster, an idiomatic cluster, and an ambiguous cluster. Furthermore, for 4 clusters, the data can be split to a highly confident literal cluster, a less confident literal cluster, a less confident idiomatic cluster, and a highly confident idiomatic cluster. Taking this notion to the extreme case would be introducing 5 clusters, where 4 of them will represent roughly the same data as is the case in 4 clusters and an extra cluster can represent ambiguous cases. Table 2 shows the accuracy achieved by applying these two algorithms on the test set with a varying number of clusters and compares them to those of the baseline, logistic regression, Linear SVM, and state-of-the-art (SUP).
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c|c|} \hline
+Method & Accuracy (\%) \\ \hline
+Baseline & 61.9 \\ \hline
+k-means, k = 2 & 81.8 \\ \hline
+k-means, k = 3 & 83.4 \\ \hline
+k-means, k = 4 & 84.1 \\ \hline
+k-means, k = 5 & 83.1 \\ \hline
+GMM, 2 clusters & 81.8  \\ \hline
+GMM, 3 clusters & 83.2  \\ \hline
+GMM, 4 clusters & 84.0  \\ \hline
+GMM, 5 clusters & 83.2  \\ \hline
+Logistic Regression & 85.9 \\ \hline
+Linear SVM & \textbf{88.3} \\ \hline
+SUP & 82.7 \\ \hline
+\end{tabular}
+\caption{Comparing the accuracy of the supervised learning approaches}
+\end{table}
+
+
+The baseline method classifies all the instances with the most frequent class in the dev set which is the idiomatic class. All of the methods were able to outperform it the with clustering algorithms having similar performance. It can be seen that GMM benefits more from increasing the number of clusters but there is no significant improvement in the accuracy beyond 4 clusters. This can be attributed to the cluster structure formed using different numbers of clusters to fit the data. A more detailed analysis of the cluster structure formed by the clustering algorithms is discussed in section 5.4. Overall, linear SVM performed the best and was able to beat state-of-the-art along with logistic regression. The linear SVM achieved 31.8\% less error than state-of-the-art while logistic regression achieved 9.8\% less error than state-of-the-art.  
+
+\subsubsection{PNV Dataset}
+
+%Can put a table showing how the effect of dimensionality and window size of the model impacts its performance on the Dataset.
+
+%upsampling
+
+For this dataset, the best performing Word2vec parameters on the English dataset were used. The MWE vector was formed as previously described, and extra care had to be given to verbs as their form in the target sentence can vary significantly from their lemmatized form. We experiment with three types of features using the same previous 4 classification algorithms on both corpora. The three features are: The features provided by the dataset (LANG), the features extracted by Word2vec (WORD2VEC), and combining both features together (ALL). For the clustering algorithms, the number of clusters were set to 5 as those performed best on the English dataset. Since this dataset is skewed, upsampling had to be incorporated to balance both classes artificially and  the F-score of the literal class is reported. The results for each corpus is displayed in table 3 along with the accuracy achieved by each method.
+
+\begin{table*}[t]
+\centering
+\begin{tabular}{|c|cc|cc|} \hline
+\multicolumn{1}{|c|}{Method} & 
+\multicolumn{2}{|c|}{EUROPARL} &
+\multicolumn{2}{|c|}{FAZ} \\ 
+ 			& F-score & Accuracy (\%) & F-score & Accuracy (\%) \\ \hline
+ K-means ALL 		& 0.201 & 75.8 & 0.274 & 76.1  \\  
+ K-means WORD2VEC 	& 0.324 & 79.2 & 0.221 & 76.4 \\ 
+ K-means LANG 		& 0.122 & 61.3 & \textbf{0.333} &  63.2\\ \hline
+ 
+ GMM ALL 		& 0.200	& 75.9 & 0.262 & 76.1  \\  
+ GMM WORD2VEC 	& 0.326 & 79.3 & 0.223 & 76.5  \\ 
+ GMM LANG 		& 0.122	& 61.4 & 0.328 &  63.2 \\ \hline
+ 
+ Logistic Regression ALL 		& \textbf{0.358}  	& 94.7  & 0.244 & 80.7 \\  
+ Logistic Regression WORD2VEC 	& 0.350  	& 94.5 & 0.247 & 81.1 \\ 
+ Logistic Regression LANG 		& 0.139 	& 76.5 & 0.312 & 66.3 \\ \hline
+ 
+ Linear SVM ALL 		& \textbf{0.358} & 94.7 & 0.244 & 80.7 \\  
+ Linear SVM WORD2VEC 	& 0.350 & 94.5 & 0.247 & 81.1 \\ 
+ Linear SVM LANG 		& 0.140 & 76.6  & 0.312 & 66.2 \\ \hline
+ 
+\end{tabular}
+\caption{The accuracy and the F-score of the literal class on the PNV dataset}
+\end{table*}
+
+The table shows that the F-scores of the Word2vec features perform best for all methods on the EUROPARL corpus with Linear SVM outperforming the others, while the features provided by the dataset perform best for most methods on the FAZ corpus with GMM using both sets of features outperforming the others. This shows that neither the features extracted by Word2vec nor the ones provided by the dataset are universal and that different features perform differently on different datasets. In terms of accuracy, Linear SVM with Word2vec features perform best on both corpora. It should be noted that the accuracy percentages were severely affected by upsampling to favour higher F-scores for the literal class. Disabling upsampling would increase the accuracy of all the methods to over 90\% but would severely affect the F-scores.    
+
+%Accuracy is effected by upsampling and that F-scores are worse but accuracy is higher as a combination
+
+These results indicate that Word2vec can extract features that are competitive with the features that linguists believe would be valuable in identifying whether an MWE is idiomatic or literal. However, combining both features together can lead to an F-score that is worse than any of the two depending on the method and dataset. 
+
+\subsection{Unsupervised Learning}
+
+We have also investigated the use of unsupervised learning algorithms for identifying MWEs in the VNC tokens dataset using the two clustering algorithms presented earlier. The classification process is carried out as previously described but instead of one token out evaluation, all of the MWE type instances are clustered. An oracle then maps a cluster to a class such that the algorithm ends up classifying more instances correctly than incorrectly. This approach is used only for 2 clusters, and is accomplished by mapping a cluster to one of the classes and the other cluster to the other class. The classification accuracy is then measured and if the accuracy is less than 50\%, the cluster assignment is flipped so that the accuracy becomes greater that 50\% (this can be done simply by subtracting the previously obtained accuracy from 100\%). Another approach would be to use the same idea as that in the supervised learning approach. The clustering algorithm would classify an instance based on the most frequent class of the corresponding cluster. The issues with these two approaches is finding which cluster is literal and which one is idiomatic since in a truly unsupervised setting, the labels are not provided. However, this type of investigation can provide insight as to which direction an unsupervised clustering approach should follow. The results of the investigation are shown in table 4.
+
+\begin{table*}
+\centering
+\begin{tabular}{|c|c|c|c|} \hline
+Method & DEV & TEST & AVG \\ \hline
+%k-means, oracle & 74.6 & 65.1 & 69.8 \\ \hline
+k-means, k = 2 & 82.6 $\pm{0.653}$ & 81.5 $\pm{2.86}$ & 82.1 $\pm{2.07}$ \\ \hline
+k-means, k = 3 & 84.2 $\pm{2.94}$ & 83.2 $\pm{2.58}$ & 83.7 $\pm{2.77}$  \\ \hline
+k-means, k = 4 & 86.0 $\pm{3.02}$ & 85.9 $\pm{2.82}$ & 86.0 $\pm{2.92}$ \\ \hline
+k-means, k = 5 & 86.9 $\pm{3.54}$ & 87.9 $\pm{2.36}$ & 87.4 $\pm{3.01}$\\ \hline
+%GMM, oracle & 75.2 & 69.5 & 72.4 \\ \hline
+%GMM, 2 clusters & 83.2  & 81.3 & 82.3  \\ \hline
+%GMM, 3 clusters & 85.5 & 82.8 & 84.2 \\ \hline
+%GMM, 4 clusters & 85.5 & 85.7 & 85.6  \\ \hline
+%GMM, 5 clusters & 86.2 & 88.0 & 87.1  \\ \hline
+\end{tabular}
+\caption{The accuracy of the oracle and the most frequent class cluster methods}
+\end{table*}
+
+\begin{table*}
+\centering
+\begin{tabular}{|c|c|c|c|} \hline
+Method & DEV & TEST & AVG \\ \hline
+CForm & 72.3 & 73.7 & 73.0 \\ \hline
+k-means, k = 2 & 67.8 $\pm{3.13}$ & 64.2 $\pm{2.57}$ & 66.0 $\pm{2.86}$ \\ \hline
+k-means, k = 3 & 68.2 $\pm{4.36}$ & 71.1 $\pm{2.99}$ & 69.7 $\pm{3.74}$ \\ \hline
+k-means, k = 4 & 69.7 $\pm{5.24}$ & \textbf{78.1} $\pm{3.30}$ & 73.9 $\pm{4.38}$ \\ \hline
+k-means, k = 5 & \textbf{71.8} $\pm{6.58}$ & 76.5 $\pm{4.07}$ & \textbf{74.2} $\pm{5.47}$ \\ \hline
+k-means, k = 8 & 69.6 $\pm{6.00}$ & 75.4 $\pm{5.66}$ & 72.5 $\pm{5.83}$ \\ \hline
+\end{tabular}
+\caption{The accuracy of the unsupervised learning methods}
+\end{table*}
+
+The table shows that classifying an instance based on the most frequent class in the corresponding is much more effective than assigning a separate class for each cluster. This shows that the performance of unsupervised algorithms can greatly improve if there is a method to find out whether a cluster contains more literal or idiomatic instances. Our previously mentioned hypothesis was inspired from the attempts to find a better unsupervised learning algorithm for classifying MWEs. 
+
+By analysing the clusters formed, we saw that it would be very difficult to obtain useful information from the cluster structure. While analysing the structure formed by using 2 clusters, it was found that the higher the similarity between the two clusters, the more likely they were to be of the same class. For 3 clusters, only 30\% of the MWE types exhibited the structure that was hypothesised but the most idiomatic clusters seemed to have a higher cosine similarity to the lemmatized form of the MWE. This shows that in general, MWEs are more likely to be used idiomatically when their tokens are in lemmatized form. The structure formed by using 4 clusters matched our hypothesis the most by clustering two thirds of the MWE types to a highly confident literal cluster, a less confident literal cluster, a less confident idiomatic cluster, and a highly confident idiomatic cluster. Analysing 5 clusters was challenging but no useful information could be obtained from the cluster structure.  
+
+\subsection{Type-level MWE identification}
+
+This section deals with MWE identification at the type level. In this case, the problem can be formulated as: Given a set of examples belonging to multiple MWEs, how well can a program use this information to classify the usage of a novel MWE. Type-level MWE identification is a very challenging problem as it requires features that are universal to all MWEs. Nevertheless, we evaluate the performance of our previous approaches to this problem on the VNC tokens dataset. 
+
+
+The models were evaluated using one type out evaluation. That is, a single MWE type is removed and the classifier is trained on the rest of the MWE type instances. Once the classifier has been trained, it is used to classify the instances of the removed MWE type. This process is repeated until all the MWE types have been tested. The results of the evaluation are shown in table 5. 
+
+\begin{table}
+\centering
+\begin{tabular}{|c|c|c|c|} \hline
+Method & DEV & TEST & AVG \\ \hline
+Baseline & 62.1 & 61.9 & 62.0 \\ \hline
+k-means, k = 2 & 72.3 & 73.6 & 72.9 \\ \hline
+k-means, k = 3 & 72.3 & 73.6 & 73.0 \\ \hline
+k-means, k = 4 & 71.7 & 72.6 & 72.2 \\ \hline
+k-means, k = 5 & 70.2 & 72.9 & 71.5 \\ \hline
+GMM, 2 clusters & 60.2 & 61.9 & 61.0  \\ \hline
+GMM, 3 clusters & 61.9 & 55.3 & 58.6  \\ \hline
+GMM, 4 clusters & 59.4 & 47.6 & 53.5  \\ \hline
+GMM, 5 clusters & 59.4 & 48.2 & 53.8  \\ \hline
+Logistic Regression & 64.5  & 69.5 &  67.0\\ \hline
+Linear SVM & 68.9  &  69.4 & 69.2 \\ \hline
+
+\end{tabular}
+\caption{The performance of our previous approaches on type-level MWE classification}
+\end{table}
+
+The baseline method in that table refers to the same most frequent class classifier that was previously mentioned. It can be seen that the accuracies have dropped dramatically on this task compared to token-level MWE classification. This shows the inherent difficulty and complexity of this task. However, Linear SVM manages to beat the baseline on the dev set and falls shortly in terms of the average. K-means also manages to beat the baseline on the test data by 3.2\%.
+
+\section{Conclusion}
+
+%Summarize the results (Although the achieved accuracy for MWEs on the token level using supervised learning was high, identifying MWEs on the type level seemed to be a very difficult task. This can be attributed probably because of little training data, or the Word2vec model is unable to capture the distinctions between MWEs effectively)
+
+We have presented a word embedding approach for MWE identification where the features are extracted automatically from a Word2vec model. The results achieved by our method on token level MWE classification on the VNC tokens dataset using a Linear SVM reduces the error rate by 31.8\% compared to state-of-the-art. The results also reveal that using a Word2vec model with a smaller window size and higher dimensionality is more effective for extracting features for MWE classification. This shows that the tokens immediately surrounding the MWE tokens tend to be the most influential for MWE classification. 
+
+The best performing Word2vec parameters were then used for the rest of the experiments. We report the accuracy and F-score of the literal class of our method on the German PNV dataset. The results show that the features extracted by Word2vec are comparable to those provided by the dataset. The results also show that different features perform differently on different datasets. We have also provided an investigation of the performance of unsupervised learning models on the VNC tokens dataset and a brief analysis of the cluster structure formed by GMM and k-means. Our investigation has shown that classifying a cluster by its most frequent class provides the best results. However, unfortunately, our analysis of the cluster structure has shown that it would be very difficult to obtain useful information from that structure. We have also evaluated the performance of our methods for MWE classification at the type level on the VNC tokens dataset. The accuracies achieved by our methods on this task were much lower than the accuracies achieved for token level classification. However, Linear SVM managed to outperform the baseline on the dev set and approach its average accuracy. On the other hand, k-means was shown to outperform all other models on the test set.
+
+\section{Future Work}
+
+%Need to experiment with more sophisticated models to improve the ability of both supervised and unsupervised approaches.
+
+For future work, the effectiveness of more sophisticated models such as Paragraph Vectors and Skip-thought vectors can be investigated. In addition, building on the conclusion that the context immediately surrounding the MWE tokens tend to matter the most, an attention model for detecting MWEs can be constructed. This model can then be trained to give more attention to the features that are more influential for classifying whether an MWE is literal or idiomatic. If such a model was able to extract features that are universal for all MWEs, then it can have a lot of potential for classifying MWEs at the type level. Another direction for future work would be investigating deep learning approaches for extracting features that are effective for MWE classification. Both of these approaches can contribute to the supervised and unsupervised learning methods. 
+
+\section*{Acknowledgments}
+
+
+This research was supported by NBIF and NSERC. Computational resources are provided by ACENET, the regional advanced research computing consortium for universities in Atlantic Canada. ACENET is funded by the Canada Foundation for Innovation (CFI), the Atlantic Canada Opportunities Agency (ACOA), and the provinces of Newfoundland and Labrador, Nova Scotia, and New Brunswick.
+
+
+
+% include your own bib file like this:
+\bibliographystyle{acl2016}
+\bibliography{Project_report}
+%\bibliography{acl2016}
+%\bibliographystyle{acl2016}
+
+\appendix
+
+\end{document}

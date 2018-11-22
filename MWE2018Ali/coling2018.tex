@@ -1,0 +1,1211 @@
+%
+% File coling2018.tex
+%
+% Contact: zhu2048@gmail.com & liuzy@tsinghua.edu.cn
+%% Based on the style files for COLING-2016, which were, in turn,
+%% Based on the style files for COLING-2014, which were, in turn,
+%% Based on the style files for ACL-2014, which were, in turn,
+%% Based on the style files for ACL-2013, which were, in turn,
+%% Based on the style files for ACL-2012, which were, in turn,
+%% based on the style files for ACL-2011, which were, in turn, 
+%% based on the style files for ACL-2010, which were, in turn, 
+%% based on the style files for ACL-IJCNLP-2009, which were, in turn,
+%% based on the style files for EACL-2009 and IJCNLP-2008...
+
+%% Based on the style files for EACL 2006 by 
+%%e.agirre@ehu.es or Sergi.Balari@uab.es
+%% and that of ACL 08 by Joakim Nivre and Noah Smith
+
+\documentclass[11pt]{article}
+\usepackage{coling2018}
+\usepackage{times}
+\usepackage{url}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{refstyle}
+\usepackage{natbib}
+\usepackage{tabu}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{float}
+%% \graphicspath{ {/home/ahakimi/Dropbox/neuralnetwork/project/coling2018/} }
+
+\usepackage{xspace}
+
+\newcommand{\posciteauthor}[1]{\citeauthor{#1}'s}
+\newcommand{\poscite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+
+\newcommand{\compone}{comp$_1$\xspace}
+\newcommand{\comptwo}{comp$_2$\xspace}
+
+%\setlength\titlebox{5cm}
+
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+
+\title{Do Character-level Neural Network Language Models Capture Knowledge of Multiword Expression Compositionality?
+}
+
+\author{Ali Hakimi Parizi \and Paul Cook \\
+Faculty of Computer Science, University of New Brunswick\\
+Fredericton, NB E3B 5A3 Canada\\
+\tt{ahakimi@unb.ca}, \tt{paul.cook@unb.ca}}
+
+%% \author{Ali Hakimi Parizi \\
+%%   University of New Brunswick \\
+%%   Frederiction, NB \\
+%%   {\tt ahakimi@unb.ca} \\\And
+%%   Paul Cook \\
+%%    University of New Brunswick \\
+%%   Frederiction, NB \\
+%%   {\tt paul.cook@unb.ca} \\}
+
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+In this paper we propose the first model for multiword expression
+(MWE) compositionality prediction based on character-level neural
+network language models. Experimental results on two kinds of MWEs
+(noun compounds and verb-particle constructions) and two languages
+(English and German) suggest that character-level neural network
+language models capture knowledge of multiword expression
+compositionality, in particular for English noun compounds and the
+particle component of English verb-particle constructions. In contrast
+to many other approaches to MWE compositionality prediction, this
+character-level approach does not require token-level identification
+of MWEs in a training corpus, and can potentially predict the
+compositionality of out-of-vocabulary MWEs.
+\end{abstract}
+
+\section{Introduction}
+
+Multiword expressions (MWEs) are lexical items that are composed of
+multiple words, and exhibit some degree of idiomaticity
+\citep{baldwin2010multiword}, for example semantic idiomaticity, in
+which the meaning of an MWE is not entirely transparent from the
+meanings of its component words, as in \emph{spill the beans}, which
+has an idiomatic meaning of `reveal a secret'. Compositionality is the
+degree to which the meaning of an MWE is predictable from the meanings
+of its component words. It is typically viewed as lying on a
+continuum, with expressions such as \emph{speed limit} and \emph{gravy
+  train} lying towards the compositional and non-compositional ends of
+the spectrum, respectively, and expressions such as \emph{rush hour}
+and \emph{fine line} falling somewhere in between as
+semi-compositional.\footnote{These expressions and compositionality
+  judgements are taken from \cite{reddy2011empirical}.}
+Compositionality can also be viewed with respect to an individual
+component word of an MWE, where an MWE component word is compositional
+if its meaning is reflected in the meaning of the expression. For
+example, in \emph{spelling bee} and \emph{grandfather clock}, the
+first and second component words, respectively, are compositional,
+while the others are not.
+
+%% speed limit (comp)
+%% rush hour, fine line (semi comp)
+%% gravy train (non-comp)
+
+%% spelling bee (1st component is comp)
+%% grandfather clock (2nd component is comp)
+
+Knowledge of multiword expressions is important for natural language
+processing (NLP) tasks such as parsing
+\citep{Korkontzelos:Manandhar:2010} and machine translation
+\citep{Carpuat:Diab:2010}. In the case of translation,
+compositionality is particularly important because a word-for-word
+translation would typically be incorrect for a non-compositional
+expression. Much research has therefore focused on compositionality
+prediction of MWEs, primarily at the type level. One common approach
+to measuring compositionality is to compare distributional
+representations of an MWE and its component words
+\citep[e.g.,][]{Schone:Jurafsky:2001,Baldwin+:2003,Katz2006,reddy2011empirical,SchulteImWalde+:2013,Salehi+:2015}. The
+hypothesis behind this line of work is that the representation of a
+compositional MWE will be more similar to the representations of its
+component words than the representation of a non-compositional MWE
+will be to those of its component words. One issue faced by such
+approaches is that token-level instances of MWEs must be identified in
+a corpus in order to form distributional representations of
+them. Token-level MWE identification has been studied for specific
+types of MWEs such as verb-particle constructions
+\citep[e.g.,][]{Kim:Baldwin:2010} and verb--noun idioms
+\citep[e.g.,][]{salton-ross-kelleher}. Broad coverage MWE
+identification has also been studied, and remains a challenge
+\citep{Schneider+:2014,gharbieh+:2017}.
+
+
+%% TODO: Include some other approaches to predicting compositionality
+%% Fazly et al.: statistical measures of lexico-syntactic fixedness
+%% Salehi 2013: string similarity under translation
+%% Others??
+
+Language models are common throughout NLP in tasks including machine
+translation \citep{brants2007large}, speech recognition
+\citep{collins2005discriminative}, and question answering
+\citep{chen2006reranking}. Although word-level language models are
+widely used, and their performance can be higher than character-level
+language models, character-level models have the advantage that they
+can model out-of-vocabulary words \citep{mikolov2012subword}. Owing to
+this advantage, character-level language models have been applied in a
+range of NLP tasks, including authorship attribution,
+\citep{peng2003language}, part-of-speech tagging
+\citep{santos2014learning}, case restoration
+\citep{susanto2016learning}, and stock price prediction
+\citep{dos2017stock}. Moreover, character-level information can be
+composed to form representations of words \citep{Ling+:2015}.
+
+%% TODO: Need to argue above that recent advances in NN LMs make this a
+%% sensible thing to try...
+
+In this paper we consider whether character-level neural network
+language models capture knowledge of MWE compositionality. We train
+character-level language models based on recurrent neural networks ---
+including long short-term memory \citep[LSTM,][]{hochreiter1997long}
+and gated recurrent unit \citep[GRU,][]{cho2014learning}. We then use
+these language models to form continuous vector representations of
+MWEs and their component words. Following prior work, we then use
+these representations to predict the compositionality of MWEs. This
+method overcomes the limitation of previous work in this vein of
+having to identify token instances of MWEs in a corpus in order to
+form a distributional representation of them. Moreover, this approach
+could potentially be applied to predict the compositionality of
+out-of-vocabulary expressions that were not seen in the corpus on
+which the language model was trained. To the best of our knowledge,
+this is the first work to apply character-level neural network
+language models to predict MWE compositionality. Our experiments on
+two kinds of MWEs (noun compounds and verb-particle constructions) and
+two languages (English and German) produce mixed results, but suggest
+that character-level neural network language models do indeed capture
+some knowledge of multiword expression compositionality, in particular
+for English noun compounds and the particle component of English
+verb-particle constructions.
+
+%% Multiword expressions (MWE) are made up of a combination of several words that are lexically, syntactically, semantically, pragmatically or statistically idiomatic \citep{baldwin2010multiword}. An MWE is compositional if its components contribute to its meaning; For instance, we consider "Swimming Pool" as a compositional MWE, since it carries the meaning of both "Swimming" and "Pool". However, "Ivory Tower" is a non-compositional MWE because it is not possible to infer its meaning from neither "Ivory" nor "Tower". 
+
+%% MWEs are a big concern in NLP applications, especially in those applications, which are related to the meaning of words. For example, in Machine Translation, it is crucial to know if an MWE is compositional or non-compositional. It has a direct impact on the way that the system should translate the MWE. The automatic prediction has other usages too such as in Question Answering, or in Information Retrieval.
+
+%% Character-level language models can generate the probability distribution of the next character in a sequence based on the previous characters. Using this approach, It gives us a vector representation for each character, words or even phrases. Therefore, a character-level language model is capable of generating vector representation for out of vocabulary (OOV) items. Besides, These models need a sequence of characters to train, and thus the training corpus does not require any vital preprocessing. 
+
+%% There have been several attempts to predict compositionality of an MWEE. Previous methods employed methods such as semantic asymmetry \citep{tapanainen1998idiomatic}, Latent Semantic Analysis \citep{katz2006automatic}, or Employing WordNet or other thesauruses \citep{mccarthy2007detecting}. However, based on our best knowledge, none of them has considered a character-level language model for this purpose. 
+
+%% This work is the first attempt to investigate the effectiveness of character-level language models for predicting compositionality over three types of MWE, English noun-compounds, English verb-particle constructions, and German noun-compounds. Our primary research questions are as follow:
+%% \begin{enumerate}
+%%   \item Do character-level language models capture knowledge of multiword
+%% expression compositionality?
+%%   \item Is there a relationship between the directionality of a character-level
+%% language model (e.g., forward vs. backward) and the knowledge it captures
+%% of the compositionality of MWE component words (e.g., the first vs. the second component word for a two word MWE)?
+%% \end{enumerate}
+%% After carefully investigating the research questions, we reached following conclusions:
+%% \begin{enumerate}
+%%   \item Character-level language models are completely capable of capturing compositionality Information for English MWEs.
+%%   \item  Although the achieved results for German dataset are not promising,  character-level models only rely on characters and our guess is if it is trained on a more significant and more quality corpora, it can capture compositionality information.
+%%   \item  In contrast to the forward LSTM, the backward LSTM cannot predict compositionality of MWEs.
+%%   \item  The bidirectional character-level language model also indicates promising results to predict compositionality over both ENC and EVPC. Even for GNC although the results are not significant, it demonstrates better results compared to the forward LSTM and the backward model. 
+%% \end{enumerate}
+
+
+
+%% In this paper, we first discuss related works. Then, in section 3, we describe our character-level language model for compositionality prediction and how the compositionality score is calculated. Section 4 is associated with the way our model is trained and evaluated. Afterward, results are presented in section 5. Section 6 is dedicated to the conclusion and future works. 
+
+%% \section{Related Work}
+%% In this section, first, we describe character-level language models and their applications. Then, we talk about MWE compositionality and different works that have been done to distinguish between compositional and non-compositional MWEs.
+%% \subsection{Character-level Language Model}
+%% Langauge models can produce a probability distribution over a sequence of words or characters, and they can be employed in different applications such as Machine Translation \citep{brants2007large}, Speech Recognition \citep{collins2005discriminative} and Question Answering \citep{chen2006reranking}. Although the performance of word-level language models is higher than character level language models, character level models can deal with out of vocabulary (OOV) words \citep{mikolov2012subword}. 
+
+%% These probability distributions can be generated by different methods like n-gram models and neural networks. Since modeling a language by characters needs to consider a more extended range of tokens to predict the next symbol more precisely, n-gram models are not capable of showing us satisfactory results. Neural networks are so helpful in this case, specially RNNs, and can remember a sequence of data without any length limitation \citep{goldberg2017neural}. In \Figref{archi} a character level RNN language model is shown. As you can see, the model gets a chunk of text as its input. The network job is to model the probability distribution of the next character based on the previous ones.
+
+%% %% \begin{center}
+%% %% \includegraphics[width=0.5\textwidth]{char.jpg}
+%% %% \captionof{figure}{The architecture of the character level language model  
+%% %% \citep{charrnngraphic}}
+%% %% \label{fig:archi}
+%% %% \end{center}
+
+
+%% RNN has different forms. The simplest one is called Vanilla RNN. in the following, other types of RNN are discussed.
+%% \begin{enumerate}
+%%   \item Long short-term memory (LSTM): LSTM has been introduced by \citet{hochreiter1997long} to overcome the vanishing and exploding gradient problem in vanilla RNN. Vanishing problem occurs when the gradient becomes zero, and exploding problem happens when the gradient grows very high. This architecture by employing a memory cell resolved the problem of learning long-range dependencies. 
+%%   \item Gated recurrent unit (GRU): This is a simpler version of LSTM proposed by \citet{cho2014learning}. They introduced a new gated unite to update the hidden state.
+%%   \item Bidirectional RNN: The difference between a bidirectional RNN with other forms of RNN is that it can use input information simultaneously in forward and backward directions \citep{schuster1997bidirectional}.
+%% \end{enumerate}
+%% As it is aforementioned, character-level language models can produce vector representation for OOV words and this ability raised interest in researchers to apply it in different tasks. \citet{peng2003language} proposed a new method for authorship attribution based on a character-level language model. They built character-level n-gram models for each author to conduct this task. Their proposed method could even capture morphological features. \cite{santos2014learning} introduced a POS tagger that combines world-level features and character-level representations by a convolutional network. \citet{susanto2016learning} utilized a character-level language model in their work in order to perform a case restoration task. \citet{dos2017stock} investigated the usage of a character-level language model in predicting changes in the stock price of a company based on the published news about the company.
+%% \subsection{Multiword Expression Compositionality}
+%% A concept closely related to the degree of idiomaticity is compositionality, which defines the degree that the meaning of an MWE can be inferred from its constituents \citep{goldberg2017neural}. There has been done plenty of research on detecting the compositionality of MWEs so far. \cite{tapanainen1998idiomatic} was an early attempt to find compositional MWEs. The focus of this work was only on verb-object combination. They used the semantic asymmetry of verb-object relation to fulfilling this task. \citet{katz2006automatic} employed Latent Semantic Analysis to utilize local context clues for labeling an MWE compositional or non-compositional. They assumed an MWE is compositional if its co-occurrence has a systematical relation with its components co-occurrences. In their work, an MWE was classified as a compositional or non-compositional and they did not consider an MWE may show a degree of compositionality. \citet{mccarthy2007detecting} used selectional preferences of verbs to discriminate between compositional and non-compositional verb-object expressions. Three models were employed in this work. Two of them used WordNet to acquire selectional preferences and the other one used the entries in a thesaurus of distributionally-similar words. In the matter of noun compounds, \citet{reddy2011empirical} collected a dataset of noun compounds and by using human judgments determined the contribution of each constituent with the compositionality of the whole MWE. Then they introduced different constituent based models for compositionality detection. These models were based on distributional similarity and assumed an MWE is compositional if it appears in the same context as its components. \citet{salehi2014using} proposed that we can calculate compositionality by using distributional similarity of MWE and each of its components under translation into different languages. They examined their method over three different datasets, English noun compounds, English verb-particle construction and German noun compounds. In another work, they used Word2Vec to have a vector for each part and the MWE and based on these vector representations measured compositionality \citep{salehi2015word}.
+
+
+\section{A Character-level Model for MWE Compositionality}
+
+If an MWE is compositional, it is expected to be similar in meaning to
+its component words. Since the vector representation of a word/MWE is
+taken as a proxy for its meaning, we expect the vector representation
+of a compositional MWE to be similar to its component words'
+vectors. In order to obtain vectors representing each of an MWE and
+its component words through a character-level neural network language
+model, each of the MWE and its component words are considered as a
+sequence of characters. Each of these character sequences includes a
+special end-of-sequence character. In the case of an MWE, the
+character sequence includes a space character between the component
+words. For example, the MWE \emph{ivory tower} is represented as the
+sequence $<i,v,o,r,y,\phantom{x},t,o,w,e,r,\textrm{END}>$. These
+character sequences are fed to the neural network language model, and
+the hidden state of the neural network at the end of the sequence is
+taken as the vector representation for that sequence.\footnote{This
+  approach does have the limitation that it is not immediately clear
+  how to input a ``gappy'' MWE, such as \emph{give X a chance}, to the
+  language model. A possible solution would be to attempt to select a
+  prototypical slot filler. However, this issue does not arise in this
+  study because the evaluation datasets used --- English and German
+  noun compounds, and English verb-particle constructions --- do not
+  consist of gappy expressions. (Although English verb-particle
+  constructions can appear in the split configuration, we input them
+  to the language model in the joined configuration.)}
+
+%% Afterward, one of the constituent based methods is employed to
+%% calculate the compositionality score for the given MWE.
+
+Once vector representations of an MWE and its component words are
+obtained, following \cite{Salehi+:2015}, the following equations are
+then used to compute the compositionality of an MWE:
+
+\begin{equation}
+\mathrm{comp}_{1}(\mathrm{MWE})=\alpha
+sim(\mathrm{MWE},\mathrm{C}_{1})+(1-\alpha)sim(\mathrm{MWE},\mathrm{C}_{2})
+\label{eq:comp1}
+\end{equation}
+
+\begin{equation}
+\mathrm{comp}_{2}(\mathrm{MWE})=sim(\mathrm{MWE},\mathrm{C}_{1}+\mathrm{C}_{2})
+\label{eq:comp2}
+\end{equation}
+
+\noindent
+where $\mathrm{MWE}$ is the vector representation of the MWE, and
+$\mathrm{C}_{1}$ and $\mathrm{C}_{2}$ are vector representations for
+the first and second components of the MWE,
+respectively.\footnote{Although \compone and \comptwo are formulated
+  for MWEs with two component words, they could be extended to handle
+  MWEs with more than two component words.} In both cases, we use
+cosine as the similarity measure. \compone is based on
+\cite{reddy2011empirical}. As shown in \eqref{comp1}, the
+compositionality of an MWE is computed based on measuring the
+similarity of the MWE and each of its component words, and then
+combining these two similarities into an overall compositionality
+score. \comptwo is based on \cite{mitchell2010composition} and
+measures compositionality by considering the similarity between the
+MWE and the summation of its component words' vectors.
+
+
+
+
+%% If an MWE is compositional, it is likely that it appears in the same
+%% context as its constituents. Since the vector representation of a word
+%% is based on the context it appears in; thus, It is reasonable to
+%% assume the vector representation of a compositional MWE is going to be
+%% similar to its constituents' vectors. In order to gain their vectors
+%% through a character-level neural network, each of MWEs and their
+%% components are considered as a sequence of characters in the form of
+%% $mwe=<x_{1},x_{2},x_{3},...,x_{n}>$ which includes a space character
+%% between words as well as a unique end of sequence character. These
+%% sequences are fed to the network and the hidden state of the neural
+%% network at the end of the sequence is the vector representation for
+%% that sequence. Afterward, one of the constituent based methods is
+%% employed to calculate the compositionality score for the given MWE.
+
+%% Two equations are used to compute the compositionality of an MWE
+%% similar to \citet{salehi2015word}. The intuition behind both of them
+%% is if an MWE is compositional, it is very likely that The MWE and its
+%% constituents appear in the same context. The first equation is based
+%% on \cite{reddy2011empirical}. As it is shown in \Eqref{comp1}, the
+%% compositionality of MWE is computed based on measuring the similarity
+%% of MWE and each of its components, and by combining these two
+%% similarities, the overall compositionality is calculated.
+
+%% \begin{equation}
+%% comp_{1}(MWE)=\alpha sim(MWE,C_{1})+(1-\alpha)sim(MWE,C_{2})
+%% \label{eq:comp1}
+%% \end{equation}
+%% $MWE$ is the vector representation of the multiword expression, and $C_{1}$ and $C_{2}$ are vector representations for the first constituent and the second one, respectively.
+
+%% The second Equation is based on \cite{mitchell2010composition} and it measures compositionality by considering the similarity between the MWE and the summation of its components' vectors.  
+%% \begin{equation}
+%% comp_{2}(MWE)=sim(MWE,C_{1}+C_{2})
+%% \label{eq:comp2}
+%% \end{equation}
+%% In both cases, we use cosine similarity as the similarity measure.
+
+\section{Materials and Methods}
+
+In this section, we describe the language model and corpus it was
+trained on, as well as the evaluation dataset and methodology.
+
+\subsection{Language Model\label{sec:parameters}} 
+
+We use a publicly available TensorFlow implementation of a
+character-level RNN language
+model.\footnote{\url{https://github.com/crazydonkey200/tensorflow-char-rnn}}
+We use the following parameter settings as defaults: a two-layer LSTM
+with one-hot character embeddings and a hidden layer size of 128
+dimensions. The batch size, learning rate, and dropout are set 20,
+0.002, and 0, respectively.\footnote{These settings were used for a
+  pre-trained language model that is distributed with this
+  implementation, and so we adopted them as our defaults.} We consider
+some alternative parameter settings to these defaults in
+\secref{results}.
+
+%% The experiments are conducted with different setups. However, a
+%% configuration is selected as the default mode, and then each parameter
+%% is changed separately to observe the effect of each parameter on the
+%% result. In the default setting, the network is a two-layer LSTM.  The
+%% embedding size is set to 0 and hidden size to 128 nodes. Batch size,
+%% learning rate, and dropout are set 20, 0.002, and 0, respectively. The
+%% implementation is based on Chen Liang
+%% code\footnote{https://github.com/crazydonkey200/tensorflow-char-rnn},
+%% available on GitHub.
+
+\subsection{Training Corpus}
+We train language models over a portion of English and German
+Wikipedia dumps --- following \cite{Salehi+:2015} --- from 20 January
+2018. The raw dumps are preprocessed using
+WP2TXT\footnote{\url{https://github.com/yohasebe/wp2txt}} to remove
+wikimarkup, metadata, and XML and HTML tags.
+
+The text from Wikipedia contains many characters that are not
+typically found in MWEs, for example, non-ASCII characters. Such
+characters drastically increase the size of the vocabulary of the
+language model, which leads to very long training times. We therefore
+remove all non-ASCII characters from the English dump, and all
+non-ASCII characters other than \emph{{\"a}, {\"A}, {\"o}, {\"O},
+  {\"u}, {\"U}, {\ss}} from the German dump.
+
+Training the character-level language model over the Wikipedia dumps
+in their entirety would take a prohibitively long time due to their
+size. We therefore instead carry out experiments training on a 1\%
+sample of the English dump, and a 2\% sample of the German dump (to
+give a corpus of similar size to the English one). Details of the
+resulting training corpora are provided in \tabref{trainingdata}.
+
+
+%% How was the 1\% sample obtained? E.g., did you randomly sample
+%% documents, sentences?  
+
+%% First the whole dump was divided to 10 M
+%% files, and then the 1\% sample was selecteled randomaly.
+
+%% @AHP OK, but then how did you divide the dump into 10M files? (Or
+%% is this how the dump comes?)
+
+
+\begin{table}
+\begin{center}
+\label{tab:a}
+\begin{tabular}{cccc}
+Language  & Number of Characters & Number of Tokens & Size \\
+\hline 
+English & 102M & 16.5M & 103 MB \\ 
+German  & 102M  & 14.2M    & 102 MB  \\
+ \end{tabular}
+\caption{The size of the English and German training corpora in terms
+  of characters, tokens, and megabytes.\label{tab:trainingdata}}
+\end{center}
+\end{table}
+
+
+
+%% \footnote{The date of both English and German dumps are:
+%%   2018.01.20 } for English and German language.
+
+%% The raw text was
+%% preprocessed using WP2TXT
+%% toolbox\footnote{https://github.com/yohasebe/wp2txt} to remove all XML
+%% and HTML tags. 
+
+%% Besides, Wikipedia's files contain lots of non-ASCII
+%% characters that create a big problem for character-level neural
+%% networks, since they increase the vocabulary size and the network
+%% needs more time to train. 
+
+%% Therefore, all the non-ASCII characters are eliminated\footnote{There
+%%   are seven non-ASCII characters in German alphabet "{\"a}, {\"A},
+%%   {\"o}, {\"O}, {\"u}, {\"U}, {\ss}". Therefore, for German, these
+%%   characters are excluded from elimination process}. After the
+%% preprocessing phase, it is time to select a portion of text
+%% randomly. 
+
+%% Since the size of Wikipedia dump is too big, it takes lots
+%% of time to train the network over the whole dump. Thus, the
+%% experiments are performed over 1\% and 5\% of English corpus and 1\%
+%% of German corpus. 
+
+%% For our experiment, we train our model over a portion of Wikipedia
+%% dump\footnote{The date of both English and German dumps are:
+%%   2018.01.20 } for English and German language. 
+
+%% The raw text was
+%% preprocessed using WP2TXT
+%% toolbox\footnote{https://github.com/yohasebe/wp2txt} to remove all XML
+%% and HTML tags. 
+
+%% Besides, Wikipedia's files contain lots of non-ASCII
+%% characters that create a big problem for character-level neural
+%% networks, since they increase the vocabulary size and the network
+%% needs more time to train. 
+
+%% Therefore, all the non-ASCII characters are eliminated\footnote{There
+%%   are seven non-ASCII characters in German alphabet "{\"a}, {\"A},
+%%   {\"o}, {\"O}, {\"u}, {\"U}, {\ss}". Therefore, for German, these
+%%   characters are excluded from elimination process}. After the
+%% preprocessing phase, it is time to select a portion of text
+%% randomly. 
+
+%% Since the size of Wikipedia dump is too big, it takes lots
+%% of time to train the network over the whole dump. Thus, the
+%% experiments are performed over 1\% and 5\% of English corpus and 1\%
+%% of German corpus. 
+
+%% \Tabref{a} depicts the details of our training corpora.
+
+%% \begin{table}[!htb]
+%% \centering
+%% \caption{The detials of the training corpus}
+%% \label{tab:a}
+%% \begin{tabular}{*{5}{|c}|}
+%% \hline
+%% Language & Portion & Number of Characters & Number of Tokens & Size  \\\hline \multirow{2}{*}{English} & 1\% & 102 Million & 16.5 Million & 103 M  \\ & 5\% & 614 Million & 98 Million & 614 M  \\\hline
+%% \multirow{1}{*}{German} & 1\% & 51 Million & 7 Million & 52 M  \\\hline
+
+%%  \end{tabular}
+%% \end{table}
+
+\subsection{Evaluation Data}
+
+The proposed model is evaluated over the same three datasets as
+\cite{Salehi+:2015}, which cover two languages (English and German)
+and two kinds of MWEs (noun compounds and verb-particle
+constructions).
+
+\begin{description}
+  \item[ENC] This dataset contains 90 English noun compounds (e.g.,
+    \emph{game plan}, \emph{gravy train}) which are annotated on a
+    scale of [0,5] for both their overall compositionality, and the
+    compositionality of each of their component words
+    \citep{reddy2011empirical}.
+
+  \item[EVPC] This dataset consists of 160 English verb-particle
+    constructions (e.g., \emph{add up}, \emph{figure out}) which are
+    rated on a binary scale for the compositionality of each of the
+    verb and particle component words \citep{bannard2006acquiring} by
+    multiple annotators; no ratings for the overall compositionality
+    of MWEs are provided in this dataset. The binary compositionality
+    judgements are converted to continuous values as in
+    \cite{Salehi+:2015} by dividing the number of judgements that an
+    expression is compositional by the total number of judgements.
+
+  \item[GNC] This dataset contains 244 German noun compounds (e.g.,
+    \emph{Ahornblatt} `maple leaf', \emph{Knoblauch} `garlic') which
+    are annotated on a scale of [1,7] for their overall
+    compositionality, and the compositionality of each component word
+    \citep{von2009assoziationen}.
+\end{description}
+
+\subsection{Evaluation Methodology}
+
+We evaluate our proposed approach following \cite{Salehi+:2015} by
+computing Pearson's correlation between the predicted compositionality
+(i.e., from either \compone or \comptwo) and human ratings for overall
+compositionality. For EVPC, no overall compositionality ratings are
+provided. In this case we report the correlation between the predicted
+compositionality scores and both the verb and particle
+compositionality judgements.\footnote{In this case
+  \cite{Salehi+:2015} took the verb compositionality as a proxy for
+  the overall compositionality, and did not consider particle
+  compositionality.}
+
+
+%% After measuring $comp_{1}$ and $comp_{2}$, it is time to calculate the
+%% correlation with the human annotated data. For ENC and GNC, the
+%% Pearson's correlation for both $comp_{1}$ and $comp_{2}$ is measured
+%% with the average compositionality of overall expression. However, for
+%% EVPC there is no average compositionality. The only information
+%% available for this dataset is the compositionality of the verb and the
+%% particle. Therefore, for this dataset, we measure the correlation once
+%% based on the verb compositionality and then based on the particle
+%% compositionality. In addition, as it was mentioned, EVPC was annotated
+%% on a binary scale. Thus, in order to convert it to a continuous form,
+%% the overall compositionality of each component is calculated by
+%% dividing the number of annotation for compositionality of a
+%% constituent by the total number of annotation for that constituent.
+
+
+\section{Results\label{sec:results}}
+
+%% In this section, the achieved results under different settings and
+%% over different datasets are described. As a baseline, we use
+%% \cite{salehi2015word} method.
+
+%% \begin{table}
+%% \begin{center}
+%% \label{tab:q}
+%% \begin{tabular}{*{5}{|c}|}
+%% \hline
+%% Dataset & Method & $Comp_{1}$ & $Comp_{2}$  \\\hline \multirow{1}{*}{ENC} & WORD2VEC (d = 1000, CBOW) & 0.717 & 0.736  \\\hline 
+%% \multirow{1}{*}{EVPC} & WORD2VEC (d = 1000, CBOW) & 0.289 & -  \\\hline
+%% \multirow{1}{*}{GNC} &  WORD2VEC (d = 1000, CBOW) & 0.371 & 0.349  \\\hline
+%% \end{tabular}
+%% \end{tabular}
+%% \end{table}
+
+
+We begin by considering results using the default settings (described
+in \secref{parameters}) using both \compone and \comptwo. For
+\compone, we set $\alpha$ to $0.7$ for ENC and GNC following
+\cite{Salehi+:2015}; for EVPC we set $\alpha$ to $0.5$. Results are
+shown in \tabref{results:default}. For ENC, and the particle component
+of EVPC, both \compone and \comptwo achieve significant correlations
+(i.e., $p<0.05$). However, for GNC, and the verb component of EVPC,
+neither approach to predicting compositionality gives significant
+correlations. These correlations are well below those of previous
+work. For example, using \compone with representations of the MWE and
+component words obtained from word2vec \citep{Mikolov+:2013b},
+\cite{Salehi+:2015} achieve correlations of 0.717, 0.289, and 0.400
+for ENC, the verb component of EVPC, and GNC,
+respectively.\footnote{\cite{Salehi+:2015} did not consider the
+  compositionality of the particle component for EVPC.} Nevertheless,
+the results in \tabref{results:default}, and in particular the
+significant correlations for ENC and the particle component of EVPC,
+indicate that character-level neural network language models do
+capture some information about the compositionality of MWEs, at least
+for certain types of expressions.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lrrc}
+Dataset & Comp$_1$ & Comp$_2$ & \cite{Salehi+:2015}\\
+\hline
+ENC            & *0.239 & *0.286 & 0.717\\
+EVPC: verb     & 0.012 & 0.019   & 0.289\\
+EVPC: particle & *0.313 & *0.301 & -\\
+GNC            & $-$0.033 & $-$0.096 & 0.400\\
+\end{tabular}
+\caption{Pearson's correlation ($r$) for each dataset, using comp$_1$
+  and comp$_2$. Significant correlations ($p<0.05$) are indicated with
+  *. The best results from \cite{Salehi+:2015} using \compone with
+  representations of the MWE and component words obtained from
+  word2vec \citep{Mikolov+:2013b}, are also shown.
+\label{tab:results:default}}
+\end{center}
+\end{table}
+
+
+We now consider the compositionality of individual component
+words. Because of the low correlations on GNC in the previous
+experiments, we do not consider it further here. In this case, we
+compute the compositionality of a specific component word as below,
+where $\mathrm{C}$ is the vector representation of a component word.
+
+\begin{equation}
+\mathrm{comp}(\mathrm{C})=
+sim(\mathrm{MWE},\mathrm{C})
+\label{eq:compcomponent}
+\end{equation}
+
+\noindent
+Note that this corresponds to \compone with $\alpha=1$ or $0$, in the
+case of the first and second component words, respectively. We compare
+these compositionality predictions with the human judgements for the
+compositionality of the corresponding component word. Results are
+shown in \tabref{results:component}. For EVPC, the results are perhaps
+not surprising given the previous findings, with a significant
+correlation being achieved for the particle (word 2) but not the verb
+(word 1). In the case of ENC, a significant correlation is also
+achieved for the second component word, but not the first.
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lcc}
+Dataset & word 1 & word 2\\ 
+\hline 
+ENC & 0.135 & *0.335 \\ 
+EVPC & 0.019 & *0.200 \\
+\end{tabular}
+\caption{Pearson's correlation ($r$) for the ENC and EVPC datasets for
+  each of component word 1 and 2. Significant correlations ($p<0.05$)
+  are indicated with *.\label{tab:results:component}}
+\end{center}
+\end{table}
+
+%% @AHP Can you quickly get results for the backwards LSTM for the
+%% method in Table 3 (i.e., using just the word 1 to predict
+%% compositionality of word 1, and just word 2 to predict
+%% compositionality of word 2. (I think you might already have these
+%% numbers, but just not have included them in the report.)
+
+The above results suggests that the model is better able to predict
+the compositionality of the second component word of an MWE than the
+first. To determine whether there is a relationship between the
+directionality of a character-level language model and the
+compositionality information it can capture, we also consider a
+backward LSTM that was trained by reversing the training corpus. The
+MWE and its component words were then reversed when computing
+compositionality. However, none of the correlations from this approach
+were significant.
+
+%% \footnote{We carried out further experiments using a
+%%   bi-directional LSTM, but did not improve over the results of the
+%%   default setup, i.e., those presented in \tabref{results:default}.}
+
+
+%% \begin{table}
+%% \begin{center}
+%% \begin{tabular}{lccrr}
+%% Dataset & Frequency & Number of MWEs & Comp$_1$ & Comp$_2$\\
+%% \hline
+%% \multirow{2}{*}{ENC} & $\geq 5$ & \phantom{1}35 & 0.31 & *0.46 \\
+%%                      & $< 5$    & \phantom{1}55 & 0.16 & 0.20 \\
+%% \hline
+
+%% \multirow{2}{*}{EVPC: verb} & $\geq 5$ & \phantom{1}89 & 0.20 & 0.19\\
+%%                             & $< 5$    & \phantom{1}71 & $-$0.21 & *$-$0.25\\
+%% \hline
+
+%% \multirow{2}{*}{EVPC: particle} & $\geq 5$ & \phantom{1}89 & *0.28 & *0.27 \\
+%%                                 & $< 5$    & \phantom{1}71 & *0.33 & *0.31\\
+%% \hline
+
+%% \multirow{2}{*}{GNC} & $\geq 5$ & \phantom{1}57  & $-$0.05& $-$0.18\\
+%%                      & $< 5$    & 187 & $-$0.00 & $-$0.07\\
+%% \end{tabular}
+%% \caption{Pearson's correlation ($r$) for high ($\geq 5$) and low ($<
+%%   5$) frequency MWEs in each dataset, using comp$_1$ and
+%%   comp$_2$. Significant correlations ($p<0.05$) are indicated with
+%%   *. The number of high and low frequency MWEs in each dataset is also
+%%   shown.
+%% \label{tab:results:freq}}
+%% \end{center}
+%% \end{table}
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lccrr}
+Dataset &  & Number of MWEs & Comp$_1$ & Comp$_2$\\
+\hline
+\multirow{2}{*}{ENC} & Attested   & \phantom{1}66 & *0.296 & *0.372 \\
+                     & Unattested & \phantom{1}24 & 0.040 & 0.049 \\
+\hline
+
+\multirow{2}{*}{EVPC: verb} & Attested   & 147            & 0.019 & 0.010\\
+                            & Unattested & \phantom{1}13  & 0.034 & *$-$0.208\\
+\hline
+
+\multirow{2}{*}{EVPC: particle} & Attested   & 147 & *0.313 & *0.286 \\
+                                & Unattested & \phantom{1}13  & 0.366 & 0.385\\
+\hline
+
+\multirow{2}{*}{GNC} & Attested & 167           & 0.009& $-$0.067\\
+                     & Unattested & \phantom{1}77 & $-$0.110 & $-$0.154\\
+\end{tabular}
+\caption{Pearson's correlation ($r$) for MWEs that are attested, and
+  unattested, in each dataset, using comp$_1$ and
+  comp$_2$. Significant correlations ($p<0.05$) are indicated with
+  *. The number of attested and unattested MWEs in each dataset is
+  also shown.
+\label{tab:results:freq}}
+\end{center}
+\end{table}
+
+One interesting aspect of our proposed model is that it can
+potentially predict the compositionality of out-of-vocabulary
+expressions that are not observed in the training corpus. In
+\tabref{results:freq} we present results for each dataset, in the same
+setup as for \tabref{results:default}, but computing the correlation
+separately for MWEs that are attested, and unattested, in the training
+corpus. For ENC, both compositionality measures achieve significant
+correlations for attested expressions, but not for unattested ones,
+suggesting that the model cannot predict the compositionality of
+unseen expressions. In the case of the compositionality of the
+particle component of EVPC, for both \compone and \comptwo, the
+correlations for the unattested expressions are higher than for the
+attested ones, although for unattested expressions the correlations
+are not significant. The relatively small number of unattested
+expressions in EVPC (13) could play a role in this finding. To further
+investigate this, we focused on expressions in EVPC with less than 5
+usages in the training corpus. There are 71 such expressions. For the
+compositionality of the particle component, \compone and \comptwo
+achieve correlations of 0.327 and 0.308, respectively. These
+correlations are significant ($p < 0.05$). Word embedding models ---
+such as that used in the approach to predicting compositionality of
+\cite{Salehi+:2015} --- typically do not learn representations for low
+frequency items.\footnote{\cite{Salehi+:2015} used a minimum frequency
+  of 15, for example.} These results demonstrate that the proposed
+model is able to predict the compositionality for low frequency items,
+that would not typically be in-vocabulary for word embedding models,
+and for which compositionality models based only on word embeddings
+would not be able to make predictions.\footnote{Note, however, that
+  \cite{Salehi+:2015} were able to make predictions for all items in
+  EVPC because they trained on a larger corpus (full Wikipedia dumps,
+  as opposed to samples of them) and all items in this dataset were
+  sufficiently frequent in their training corpus.} For GNC, and the
+verb component of EVPC, in line with the previous results over the
+entire dataset, neither compositionality measure gives significant
+correlations, with the exception of the verb component of EVPC using
+\comptwo for unattested expressions, although again the number of
+expressions here is relatively small.
+
+
+
+%% ENC:
+
+%% Attested: significant for both comps
+
+%% Unattested: not significant for both comps; that suggests our model
+%% can't do this...
+
+
+%% EVPC:
+
+%% insignificant correlations for attested and unattested for both comps;
+%% it's like it was before.
+
+%% particle: 
+
+%% significant for both comps for attested. not significant for
+%% unattested, but the number of expressions is relatively low. Suggests
+%% the model might be able to do this.  Mention analysis for freq < 5,
+%% where the correlations are significant, and a word-level distributional
+%% similarity model would typically not be able to form representations
+%% for these expressions.
+
+%% GNC: Not significant correlations, as before, in all cases.
+
+
+
+
+In an effort to improve on the default setup we considered a range of
+model variations. In particular we considered an RNN and GRU (instead
+of an LSTM), character embeddings of size 25 and 50 (instead of a
+one-hot representation), increasing the batch size to 100 (from 20),
+using dropout between 0.2--0.6, and using a bi-directional LSTM. None
+of these variations led to consistent improvements over the default
+setup.
+
+
+
+
+%% \subsection{English Noun-Compound (ENC)}
+
+%% ENC has compositionality score for each component and also the overall
+%% compositionality of the MWE. In all the experiments, the average
+%% compositionality is used, unless otherwise is stated.  At first, it is
+%% attempted to model the language by employing a vanilla RNN. The
+%% configuration is as the default configuration that was described in
+%% section 4.4, but instead of using LSTM cells, it has RNN cells. The
+%% achieved results are presented in \Tabref{b}. AS it is clear, vanilla
+%% RNN is not capable of capturing compositionality information. It is
+%% probably because a vanilla RNN is not a proper tool to model long
+%% sequences.
+
+%% \begin{table}[!htb]
+%% \centering
+%% \caption{The Pearson's correlation for vanilla RNN}
+%% \label{tab:b}
+%% \begin{tabular}{*{5}{|c}|}
+%% \hline
+%% Dataset & Method & Training Set & $Comp_{1}$ & $Comp_{2}$ \\\hline 
+%% \multirow{1}{*}{ENC} & Vanilla RNN & 1\% & 0.059
+%% p=0.57 & 0.017
+%% p=0.87 \\\hline
+%% \end{tabular}
+%% \end{table}
+
+%% Therefore, we proceed to employ other forms of RNN: LSTM and GRU. In
+%% \Tabref{c}, the result for different settings is demonstrated. The
+%% best compositionality score for $comp_{1}$ is achieved by default
+%% LSTM, which was trained on 5\% of the Wikipedia dump. For $comp_{2}$,
+%% the best result is for the model with default setting but with GRU
+%% cells. Increasing the batch size reduces the training time, but it
+%% reduces the performance considerably. Different embedding sizes do not
+%% have any severe effect on the performance, but still, the network with
+%% embedding size equal to zero outperforms other settings. Also,
+%% different numbers for dropout affect the performance remarkably. The
+%% achieved results are a proof that LSTM and GRU character-level
+%% language models can predict compositionality. Although our results are
+%% lower than \cite{salehi2015word}, there are other positive aspects of
+%% our model and our findings that make them significant. As it was
+%% mentioned before, character-level language models do not need any
+%% specific preprocessing procedure on their training data, and we can
+%% feed them any corpus. In addition, since it is a character-level
+%% neural network, it can deal with OOV and can predict compositionality
+%% of any MWE without seeing it in training corpus.
+
+%% The experiment with a backward LSTM is conducted to observe the relation between the direction of a character-level language model and the information it can capture. The backward LSTM is trained by reversing the training corpora. Afterward, during the evaluation phase, all the MWEs and their components are reversed and fed to the language model. The findings demonstrate the backward LSTM cannot capture compositionality information.
+
+%% The compositionality score is also measured by employing a bidirectional character-level language model. The bidirectional model is a combination of a forward LSTM and a backward LSTM. The parameters of both of them are set to the default setting. Here, the vector representation for a word is the result of the concatenation of the hidden state of the forward LSTM and the hidden state of the backward LSTM. For $Comp_{1}$, the results are better than the default mode, but they are slightly lower for $Comp_{2}$.
+
+%% \begin{table}[!htb]
+%% \centering
+%% \caption{The result of different settings over ENC}
+%% \label{tab:c}
+%% \begin{tabular}{*{5}{|c}|}
+%% \hline
+%% Dataset & Method & Training Set & $Comp_{1}$ & $Comp_{2}$ \\\hline 
+%% \multirow{11}{*}{ENC} & Default LSTM & 1\% & 0.23 p=0.02 & 0.29 p=0.007 \\ & Default LSTM & 5\% & 0.27 p=0.011 & 0.19 p=0.07 \\ & Default LSTM embedding size=25 & 1\% & 0.20 p=0.05 & 0.25 p=0.02 \\ & Default LSTM embedding size=50 & 1\%
+%% & 0.22
+%% p=0.04
+%% & 0.25
+%% p=0.02
+%% \\ & Default LSTM batch size=100 & 1\%
+
+%% & 0.14
+%% p=0.17
+%% & 0.14
+%% p=0.20
+%% \\ & Default LSTM dropout=0.2 & 1\%
+
+%% & 0.26
+%% p=0.01
+%% & 0.25
+%% p=0.02
+%% \\& Default LSTM dropout=0.5 & 1\%
+
+%% & -0.03
+%% p=0.78
+%% & -0.04
+%% p=0.67
+%% \\  & Default LSTM dropout=0.6 & 1\%
+
+%% & 0.04
+%% p=0.64
+%% & 0.03
+%% p=0.67
+%% \\ & Backward LSTM & 1\% & 0.004
+%% p=0.97
+%% & 0.05
+%% p=0.63
+%% \\ & Bidirectional LSTM & 1\% & 0.25
+%% p=0.02
+%% & 0.27
+%% p=0.01
+
+
+%% \\ & Default GRU & 1\%
+%% & 0.25
+%% p=0.02
+%% & 0.32
+%% p=0.02
+
+
+%% \\\hline
+
+%%  \end{tabular}
+%% \end{table}
+
+
+%% In the last experiment, it is calculated that how much each constituent has a part in compositionality of the MWE. Therefore, \Eqref{comp} is used to measure the compositionality of each component. The findings show the second constituent has more effect on the compositionality of the MWE.
+%% \begin{equation}
+%% comp(Component)=sim(MWE,Component)
+%% \label{eq:comp}
+%% \end{equation}
+%% Then the correlation of the predicted compositionality of each component with the compositionality of each element in the dataset is measured. The results are shown in \Tabref{f}.
+
+%% \begin{table}[!htb]
+%% \centering
+%% \caption{The impact of each component on the compositionality of The MWE over ENC}
+%% \label{tab:f}
+%% \begin{tabular}{*{5}{|c}|}
+%% \hline
+%% Dataset & Method & Training Set & $C_{1} comp$ & $C_{2} comp$ \\\hline 
+%% \multirow{1}{*}{ENC} & default & 1\% & 0.13
+%% p=0.21
+%% & 0.33
+%% p=0.001
+
+ 
+%% \\\hline
+
+%%  \end{tabular}
+%% \end{table}
+
+%% \subsection{English Verb-Particle Construction (EVPC)}
+%% The same experiments, which are done over ENC, are performed on this dataset too. One difference in this dataset comparing to ENC is that EVPC does not have any average compositionality. Thus, one time the compositionality score is measured based on the verb, and one time based on the compositionality of particle. \cite{salehi2015word} did not count the particle in their calculation, so this part of our experiment is slightly different compared to them. For $Comp_{1}$, $\alpha=0.5$ is chosen so each component participates in the compositionality of MWE equally. In addition, $Comp_{2}$ is calculated for EVPC too. The results are demonstrated in \Tabref{g}. Obviously, in this model, measuring the compositionality score based on the particle works significantly better than based on the verb version. It even outperforms the \cite{salehi2015word} method.
+
+%% Same as the ENC, the backward LSTM cannot capture any compositionality information for EVPC multiword expressions, and the bidirectional model is able to predict compositionality in some degrees.
+%% \begin{table}[!htb]
+%% \centering
+%% \caption{The result of different settings over EVPC}
+%% \label{tab:g}
+%% \begin{tabular}{|l|l|p{1.2cm}|p{2cm}|l|l|}
+%% \hline
+%% Dataset & Method & Training Set & Correlation With & $C_{1} comp$ & $C_{2} comp$ \\\hline 
+%% \multirow{18}{*}{EVPC} & \multirow{2}{*}{Default} & \multirow{2}{*}{1\%} & verb &
+%% 0.012
+%% p=88
+%% & 0.019
+%% p=0.81
+%% \\ & & & particle & 0.313
+%% p=0.00006
+%% & 0.30
+%% p=0.0001 
+%% \\ & \multirow{2}{*} {Default LSTM} &  \multirow{2}{*}{5\%} & verb &
+%% -0.05
+%% p=0.53
+%% & -0.03
+%% p=0.72
+%% \\ & & & particle &
+%% 0.37
+%% p=0.000001
+%% & 0.39
+%% p=0.0000003
+%% \\ & \multirow{2}{*} {\shortstack[l]{Default LSTM\\ embedding size=25}} &  \multirow{2}{*}{1\%} & verb & 
+
+%% 0.05
+%% p=0.54
+%% & 0.06
+%% p=0.40
+%% \\ & & & particle &
+%% 0.20
+%% p=0.01
+%% & 0.20
+%% p=0.008
+%% \\ & \multirow{2}{*}{\shortstack[l]{Default LSTM\\ embedding size=50}} &  \multirow{2}{*}{1\%} & verb &
+
+%% -0.02
+%% p=0.79
+%% & -0.07
+%% p=0.32
+%% \\ & & & particle &
+%% 0.19
+%% p=0.01
+%% & 0.11
+%% p=0.15
+%% \\ & \multirow{2}{*}{\shortstack[l]{Default LSTM\\ batch size=100}} &  \multirow{2}{*}{1\%} & verb &
+
+%% -0.03
+%% p=0.63
+%% & -0.02
+%% p=0.81
+%% \\ & & & particle &
+%% 0.20
+%% p=0.01
+%% & 0.16
+%% p=0.04
+%% \\ & \multirow{2}{*}{\shortstack[l]{Default LSTM\\ dropout=0.2}} &  \multirow{2}{*}{1\%} & verb &
+%% 0.02
+%% p=0.83
+%% & 0.05
+%% p=0.52
+%% \\ & & & particle &
+%% -0.03
+%% p=0.72
+%% & -0.04
+%% p=0.55
+%% \\ & \multirow{2}{*}{\shortstack[l]{Default LSTM\\ dropout=0.5}} &  \multirow{2}{*}{1\%} & verb &
+
+%% 0.05
+%% p=0.55
+%% & -0.03
+%% p=0.66
+%% \\ & & & particle &
+%% 0.07
+%% p=0.40
+%% & -0.03
+%% p=0.67
+%% \\ & \multirow{2}{*}{\shortstack[l]{Default LSTM\\ dropout=0.6}} &  \multirow{2}{*}{1\%} & verb &
+
+%% 0.01
+%% p=0.90
+%% & -0.04
+%% p=0.67
+%% \\ & & & particle &
+%% 0.05
+%% p=0.54
+%% & 0.02
+%% p=0.77
+%% \\ & \multirow{2}{*}{Backward LSTM} &  \multirow{2}{*}{1\%} & verb &
+
+%% 0.04
+%% p=0.56
+%% & -0.03
+%% p=0.65
+
+%% \\ & & & particle &
+%% 0.02
+%% p=0.85
+%% & -0.11
+%% p=0.15
+%% \\ & \multirow{2}{*}{Bidirectional LSTM} &  \multirow{2}{*}{1\%} & verb &
+
+%% 0.03
+%% p=0.73
+%% & -0.023
+%% p=0.76
+
+
+%% \\ & & & particle &
+%% 0.17
+%% p=0.03
+%% & 0.09
+%% p=0.26
+
+
+%% \\& \multirow{2}{*}{Default GRU} &  \multirow{2}{*}{1\%} & verb &
+%% -0.007
+%% p=0.93
+%% &-0.01
+%% p=0.89
+%% \\ & & & particle & 
+%% -0.04
+%% p=0.62
+%% & -0.04
+%% p=0.64
+%% \\\hline
+
+%%  \end{tabular}
+%% \end{table}
+
+%% \Tabref{j} contains results of how much the verb and the particle participate in compositionality of the MWE. The particle has a significant role based on the results, which match our previous findings. Earlier it was mentioned that the compositionality score based on the compositionality of the particle gives us more information about the compositionality of the MWE, and this experiment shows the particle has a more significant role in compositionality of the MWE than the verb.
+
+%% \begin{table}[!htb]
+%% \centering
+%% \caption{The impact of each component on the compositionality of the MWE over EVPC}
+%% \label{tab:j}
+%% \begin{tabular}{*{5}{|c}|}
+%% \hline
+%% Dataset & Method & Training Set & $C_{1} comp$ & $C_{2} comp$ \\\hline 
+%% \multirow{1}{*}{EVPC} & Default LSTM & 1\% & 0.02
+%% p=0.81
+%% & 0.20
+%% p=0.01
+ 
+%% \\\hline
+
+%%  \end{tabular}
+%% \end{table}
+
+%% \subsection{German Noun-Compound (GNC)}
+%% The result for The default LSTM and the bidirectional model is presented in \Tabref{l}. The results are not significant, but the size of the German training corpus is almost half the English corpus. Thus, it would probably show a better performance, if it was trained over a more significant dataset.  
+
+%% \begin{table}[H]
+%% \centering
+%% \caption{The Pearson's correlation over GNC}
+%% \label{tab:l}
+%% \begin{tabular}{*{4}{|c}|}
+%% \hline
+%% Dataset & Method & $Comp_{1}$ & $Comp_{2}$ \\\hline 
+%% \multirow{3}{*}{GNC} & Default LSTM &
+%% 0.004
+%% p=0.96
+%% & 0.05
+%% p=0.46 
+%% \\ & Backward LSTM & 0.0004
+%% p=0.99
+%% & 0.003
+%% p=0.96
+
+%% \\ & Bidirectional LSTM & 0.06
+%% p=0.37
+%% & 0.08
+%% p=0.23
+
+%%  \\\hline
+
+%%  \end{tabular}
+%% \end{table}
+
+
+
+\section{Conclusions}
+
+%% Blurb from Ali's results section to work in here or in intro
+
+%% As it was mentioned before, character-level language models do not
+%% need any specific preprocessing procedure on their training data, and
+%% we can feed them any corpus. In addition, since it is a
+%% character-level neural network, it can deal with OOV and can predict
+%% compositionality of any MWE without seeing it in training corpus.
+
+In this paper we proposed an approach to predicting the
+compositionality of multiword expressions based on a character-level
+neural network language model. To the best of our knowledge, this is
+the first work to consider such character-level models for this
+task. Our proposed character-level approach has an advantage over
+prior approaches to compositionality prediction based on distributed
+representations of words in that we do not require token-level
+identification of MWEs in order to form representations of them. Our
+proposed approach can furthermore potentially predict the
+compositionality of out-of-vocabulary MWEs that are not observed in
+the training corpus. We carried out experiments over three
+compositionality datasets: English and German noun compounds, and
+English verb-particle constructions. Our experimental results indicate
+that character-level neural network models do capture knowledge of
+multiword expression compositionality, at least in the case of English
+noun compounds and the particle component of English verb-particle
+constructions. We further find that our proposed model captures
+knowledge of the compositionality of the particle component of English
+verb-particle constructions that are low frequency or not observed in
+the training corpus, but not of the compositionality of unobserved
+English noun compounds.
+
+In future work we intend to further explore the various parameter
+settings of the language model --- such as the batch size, learning
+rate, and dropout --- to better understand their impact on MWE
+compositionality prediction. We also intend to train the language
+model on larger corpora. Finally, we intend to combine our
+character-level approach to compositionality prediction with
+approaches based on other sources of information, for example
+distributed representations of words and knowledge from translation
+dictionaries \citep{Salehi+:2014a}. Specifically, we intend to
+determine whether the compositionality information from
+character-level neural network language models is complementary to
+that in these other approaches.
+
+%% Finally, the information 
+
+%% Investigate the relationship between frequency and comp. prediction
+
+
+%% will first consider training the character-level
+%% language model on a larger corpus.
+
+%% For German noun-compound
+%% dataset, the results were not significant that might be because of the
+%% size or the quality of our corpora.
+
+%% As our result showed, The forward character-level language model is
+%% more capable of capturing compositionality information rather than the
+%% backward model.
+
+
+
+%% In future work, it is suggested to study the effect of other
+%% parameters of neural network such as learning rate or the number of
+%% layers. 
+
+%% Another interesting issue to investigate is employing a
+%% sub-word level language model. 
+
+%% Sub-word level models have shown a better performance compare to
+%% character-level models in different tasks; thus, it could be
+%% considered to apply them for this task too, or utilizing other forms
+%% of character-level models, which are more complex like the one
+%% \citet{kim2016character} introduced.
+
+%% Combine with other approaches: STring sim, traditional word level
+%% approaches, WN approaches?
+
+
+
+% include your own bib file like this:
+%\bibliographystyle{acl}
+%\bibliography{coling2018}
+
+
+\bibliographystyle{acl_natbib}
+\bibliography{references,../bibtex/big}
+
+\end{document}

@@ -1,0 +1,87 @@
+#1
+Summary and Contributions
+
+This paper addresses the task of identifying V+N idiomatic expressions by putting together so-called canonical form information with distributed representations of various types.
+Contribution 1: It shows that combining information about canonical form with information encoded in a distributed fashion type yields better results on the task of identifying idiomatic V+N interpretations than does the use of either sort of information alone.
+
+Contribution 2: It shows that a word2vec model, when appropriately tuned, performs better than a skip-thought model on this task, both with and without the canonical form information.
+
+Strengths
+
+Strength argument 1: The paper presents a fairly straightforward method for improving results on a well-known and relevant task, with useful comparisons to other sorts of approaches.
+Strength argument 2: The method obtains good results and is helpful in setting up discussion about how to continue improving approaches to the task.
+
+Strength argument 3: The paper is clearly written and well-situated in the literature.
+
+Weaknesses
+
+Weakness argument 1: One might argue that the most interesting result in this work is the differential effect of the tuning of the development models, yet this aspect does not receive much commentary in the paper. What does the result of the tuning process reveal about the word2vec vs. skip-thought approaches?
+
+
+#2
+
+Summary and Contributions
+
+Summary: This paper compares models for the token-level binary classification of idiomatic and literal verb-noun combinations in English using SVMs trained on distributed representations of the context of tthe VNCs. The results with a model for representing sentences as the average of their word embeddings is found to be comparable or better than the state-of-the-art provided by more complex models for contexts. Moreover, adding linguistic information about the lexico-syntactic fixedness of these combinations into the models improved even further these results.
+Contribution 1: Idiomatic classifier trained on simple model for context representation
+
+Contribution 2: Measure of the impact of adding a binary flag for canonical forms to context representation
+
+Strengths
+
+Strength argument 1: Paper proposes a simple model for context representation for token idiomaticity detection. A sentence is represented as the average of the word embeddings for each word in the sentence.
+Strength argument 2: The results outperforms the relevant state-of-the-art and the addition of linguistic information improve even further the reported results without it.
+
+Strength argument 3:
+
+Strength argument 4:
+
+Strength argument 5:
+
+Weaknesses
+
+Weakness argument 1: The contributions come from the analysis, as the paper uses well known models (word2vec, skip-thoughts and siamese-CBOW) and dataset (Cook et al.) applied to a familiar task (idiomaticity identification).
+Weakness argument 2: An error analysis is missing (but this omission may be due to space limitations). Adding it would also strengthen the contributions.
+
+Weakness argument 3:
+
+Weakness argument 4:
+
+Weakness argument 5:
+
+Questions to Authors (Optional)
+
+Question 1: The addition of the linguistic feature improves the results. Have you tested if this is an effect of the additional dimension (301 vs 300 dimensions) or of the information encoded in it? For instance, what would happen if you randomly assigned a value to this feature?
+Question 2: Have you tested the use of the average embedding without stopword removal? As some of the patterns for the canonical form are related to determiner choice, these may be lost with stopword removal.
+
+Question 3:
+
+Question 4:
+
+Additional Comments (Optional)
+
+This is a clear and well written paper on a timely topic that describes a simple approach for detecting idiomaticity combining information about lexico-syntactic characteristics of these combinations and distributional information about the context in which they occur. The results are compared against baselines from the relevant state-of-the-art and the addition of linguistic information outperforms the reported results without it.
+Could the authors provide a justification for the use of average for building context representation? Have you tested the concatenation of all content words with normalization?
+
+The additional dimension for the canonical form is a binary value. What would happen if more than one pattern for the canonical form is found in a given sentence? Have you tested a non binary feature that represents the number of patterns found in support for the canonical form in a given instance?
+
+Can you justify the parameter tuning for the models? Why not just use the default parameters of these models? How confident are you that a larger range shouldn’t be adopted for the cost function, given the variation you found with this range (0.62 to 0.83)?
+
+#3
+Summary and Contributions
+
+Summary: The paper compares different methods to classify VNC token instances as idiomatic or literal. There are two main outcomes in this study: the simple method of averaging word embeddings performs rather well; and knowledge of the lexical fixedness of VNCs provides complementary information.
+Contribution 1: The combination of rich linguistic information (i.e. lexico-syntactic fixedness) and distributed representation for the prediction of idiomaticity
+
+Strengths
+
+Strength argument 1: The combination of linguistic information and distributional models is well motivated, and carried out in a simple, but effective way.
+Strength argument 1: The experiments in section 4 are thoroughly explained
+
+Weaknesses
+
+You argue that the Word2Vec-based approach leads to the best results, despite its comparative simplicity. However, from the description of the models in section 3, it seems that this model is trained on the largest amount of data. Could it be that there are side effects due to training data size that have more impact than the model itself?
+Unfortunately, there are not many details about the sizes of the training data used for each model, which makes a direct comparison difficult, as well as the different pre-processing steps (e.g. stopwords, footnote 7)
+
+
+

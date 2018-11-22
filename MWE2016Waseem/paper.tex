@@ -1,0 +1,619 @@
+%
+% File acl2016.tex
+%
+%% Based on the style files for ACL-2015, with some improvements
+%%  taken from the NAACL-2016 style
+%% Based on the style files for ACL-2014, which were, in turn,
+%% Based on the style files for ACL-2013, which were, in turn,
+%% Based on the style files for ACL-2012, which were, in turn,
+%% based on the style files for ACL-2011, which were, in turn, 
+%% based on the style files for ACL-2010, which were, in turn, 
+%% based on the style files for ACL-IJCNLP-2009, which were, in turn,
+%% based on the style files for EACL-2009 and IJCNLP-2008...
+
+%% Based on the style files for EACL 2006 by 
+%%e.agirre@ehu.es or Sergi.Balari@uab.es
+%% and that of ACL 08 by Joakim Nivre and Noah Smith
+
+\documentclass[11pt]{article}
+\usepackage{acl2016}
+\usepackage{times}
+\usepackage{url}
+\usepackage{latexsym}
+\usepackage{lipsum}
+\usepackage{multicol}
+\usepackage{xspace}
+\usepackage{multirow}
+\usepackage{natbib}
+
+%\usepackage{cite}
+
+\aclfinalcopy % Uncomment this line for the final submission
+%\def\aclpaperid{***} %  Enter the acl Paper ID here
+
+%\setlength\titlebox{5cm}
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+\newcommand\BibTeX{B{\sc ib}\TeX}
+
+\newcommand{\eqnref}[1]{Equation~\ref{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\figsref}[2]{Figures~\ref{#1} and \ref{#2}}
+\newcommand{\posciteauthor}[1]{\citeauthor{#1}'s}
+\newcommand{\poscite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\secsref}[2]{Sections~\ref{#1} and \ref{#2}}
+\newcommand{\sentref}[1]{(\ref{#1})}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\tabsref}[2]{Tables~\ref{#1} and \ref{#2}}
+
+
+\newcommand{\cform}{\textsc{CForm}\xspace}
+\newcommand{\PNV}{PNV\xspace}
+\newcommand{\VNIC}{VNIC\xspace}
+\newcommand{\VNICs}{VNICs\xspace}
+
+\newcommand{\dev}{\textsc{dev}\xspace}
+\newcommand{\test}{\textsc{test}\xspace}
+\newcommand{\skewed}{\textsc{skewed}\xspace}
+
+
+
+\title{A Word Embedding Approach to Identifying Verb--Noun Idiomatic Combinations}
+
+\author{Waseem Gharbieh \and Virendra C. Bhavsar \and Paul Cook\\
+ Faculty of Computer Science, University of New Brunswick\\
+Fredericton, NB E3B 5A3 Canada\\
+{\tt \{waseem.gharbieh,bhavsar,paul.cook\}@unb.ca}}
+
+ 
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Verb--noun idiomatic combinations (\VNICs) are idioms consisting of a
+verb with a noun in its direct object position. Usages of these
+expressions can be ambiguous between an idiomatic usage and a literal
+combination. In this paper we propose supervised and unsupervised
+approaches, based on word embeddings, to identifying token instances
+of \VNICs. Our proposed supervised and unsupervised approaches perform
+better than the supervised and unsupervised approaches of
+\cite{Fazly2009}, respectively.
+\end{abstract}
+
+
+\section{Verb--noun Idiomatic Combinations}
+
+Much research on multiword expressions (MWEs) in natural language
+processing (NLP) has focused on various type-level prediction tasks,
+e.g., MWE extraction \citep[e.g.,][]{Church1990,Smadja:1993,Lin1999}
+--- i.e., determining which MWE types
+%% Krenn and Evert
+are present in a given corpus \citep{Baldwin:Kim:2009} --- and
+compositionality prediction
+\citep[e.g.,][]{McCarthy2003,Reddy+:2011,Salehi+:2014a}. However, word
+combinations can be ambiguous between literal combinations and
+MWEs. For example, consider the following two usages of the expression
+\emph{hit the roof}:
+
+\begin{enumerate}
+\item I think Paula might \underline{hit the roof} if you
+  start ironing.
+
+\item When the blood \underline{hit the roof} of the car I
+  realised it was serious.
+\end{enumerate}
+
+\noindent
+The first example of \emph{hit the roof} is an idiomatic usage, while
+the second is a literal combination.\footnote{These examples, and
+  idiomaticity judgements, are taken from \cite{Cook2008}.} MWE
+identification is the task of determining which token instances in
+running text are MWEs \citep{Baldwin:Kim:2009}. Although there has
+been relatively less work on MWE identification than other type-level
+MWE prediction tasks, it is nevertheless important for NLP
+applications such as machine translation that must be able to
+distinguish MWEs from literal combinations in context.
+
+Some recent work has focused on token-level identification of a wide
+range of types of MWEs and other multiword units
+\citep[e.g.,][]{Newman+:2012,Schneider+:2014,Brooke+:2014}. Many
+studies, however, have taken a word sense disambiguation--inspired
+approach to MWE identification
+\citep[e.g.,][]{Birke2006,Katz2006,Li+:2010}, treating literal
+combinations and MWEs as different word senses, and have exploited
+linguistic knowledge of MWEs
+\citep[e.g.,][]{Patrick2005,Uchiyama2005,Hashimoto:Kawahara:2008,Fazly2009,Fothergill:Baldwin:2012}.
+
+
+In this study we focus on English verb--noun idiomatic combinations
+(\VNICs). \VNICs are formed from a verb with a noun in its direct object
+position. They are a common and productive type of English idiom, and
+occur cross-lingually \citep{Fazly2009}.
+
+\VNICs tend to be relatively lexico-syntactically fixed, e.g., whereas
+\emph{hit the roof} is ambiguous between literal and idiomatic
+meanings, \emph{hit the roofs} and \emph{a roof was hit} are most
+likely to be literal usages. \cite{Fazly2009} exploit this property in
+their unsupervised approach, referred to as \cform. They define
+lexico-syntactic patterns for \VNIC token instances based on the
+noun's determiner (e.g., \emph{a}, \emph{the}, or possibly no
+determiner), the number of the noun (singular or plural), and the
+verb's voice (active or passive). They propose a statistical method
+for automatically determining a given \VNIC type's canonical idiomatic
+form, based on the frequency of its usage in these patterns in a
+corpus.\footnote{In some cases a \VNIC may have a small number of
+  canonical forms, as opposed to just one.} They then classify a given
+token instance of a \VNIC as idiomatic if it occurs in its canonical
+form, and as literal otherwise. \citeauthor{Fazly2009}\ also consider a
+supervised approach that classifies a given \VNIC instance based on
+the similarity of its context to that of idiomatic and literal
+instances of the same expression seen during training.
+
+Distributed representations of word meaning in the form of word
+embeddings \citep{Mikolov+:2013b} have recently been demonstrated to
+benefit a wide range of NLP tasks including POS tagging
+\citep[e.g.,][]{ling2015not}, question answering
+\citep[e.g.,][]{dong2015question}, and machine translation
+\citep[e.g.,][]{Zou+:2013}. Moreover, word embeddings have been shown
+to improve over count-based models of distributional similarity for
+predicting MWE compositionality \citep{Salehi+:2015}.
+
+In this work we first propose a supervised approach to identifying
+\VNIC token instances based on word embeddings that outperforms the
+supervised method of \cite{Fazly2009}. We then propose an unsupervised
+approach to this task, that combines word embeddings with
+\posciteauthor{Fazly2009} unsupervised \cform approach, that improves
+over \cform.
+
+
+\section{Models for \VNIC Identification Based on Word Embeddings\label{sec:method}}
+
+The following subsections propose supervised and unsupervised
+approaches to \VNIC identification based on word embeddings.
+
+\subsection{Supervised VNIC Identification\label{sec:method:sup}}
+
+For the proposed supervised approach, we first extract features based
+on word embeddings from word2vec representing a token instance of a
+\VNIC in context, and then use these representations of \VNIC tokens to
+train a supervised classifier.
+
+%% The extracted features include (1) a type-level representation of the
+%% \VNIC; (2) a representation of the context of the \VNIC token instance;
+%% and (3) a binary feature representing whether the \VNIC is in its
+%% canonical form.
+
+We first form a vector $\vec{e}$ representing a given \VNIC token at
+the type level. $\vec{e}$ is formed by averaging the embeddings of the
+lemmatized component words forming the \VNIC.
+
+We then form a vector $\vec{c}$ representing the context of the \VNIC
+token instance. MWEs, including \VNICs, can be discontiguous. We
+therefore form two vectors, $\vec{c}_\mathrm{verb}$ and
+$\vec{c}_\mathrm{noun}$, representing the context of the verb and noun
+components, respectively, of the \VNIC instance, and then average
+these vectors to form $\vec{c}$. More precisely,
+$\vec{c}_\mathrm{verb}$ and $\vec{c}_\mathrm{noun}$ are formed as
+follows:
+
+%% Similarly to forming $\vec{e}$, this is done by averaging vectors
+%% representing the contexts of each of the
+
+
+\begin{equation}
+\vec{c_j} = \frac{1}{2k} \sum_{i=-k, i \neq 0}^{k} w^j_{t-i}
+\end{equation}
+
+\noindent
+where $k$ is the window size that the word2vec model was trained on,
+and $w^j_t$ is the embedding of the word in position $t$ of the input
+sentence relative to the $j$th component of the MWE (i.e., either the
+verb or noun). In forming $\vec{c}_\mathrm{verb}$ and
+$\vec{c}_\mathrm{noun}$ the other component token of the \VNIC is not
+considered part of the context. The summation is done over the same
+window size that the word2vec model was trained on so that $\vec{c_j}$
+captures the same information that the word2vec model has learned to
+capture. After computing $\vec{c}_\mathrm{verb}$ and
+$\vec{c}_\mathrm{noun}$ these vectors are averaged to form
+$\vec{c}$. \figref{fig:features} shows the process for forming
+$\vec{c}$ for an example sentence.
+
+\begin{figure}
+Original text: \emph{You can \underline{see} the \underline{stars},
+  now, in the city}\\
+
+Context tokens for verb (\emph{see}): \emph{you}, \emph{can},
+\emph{the}, \emph{now}\\
+
+Context tokens for noun (\emph{stars}): \emph{can}, \emph{the},
+\emph{now}, \emph{in}\\
+
+$\vec{c}_\mathrm{verb} = \frac{vec(you) + vec(can) + vec(the)+ vec(now)}{4}$\\
+
+$\vec{c}_\mathrm{noun} = \frac{vec(can) + vec(the)+ vec(now) + vec(in)}{4}$\\
+
+$\vec{c} = \frac{\vec{c}_\mathrm{verb} + \vec{c}_\mathrm{noun}}{2}$
+
+%% $\vec{e} = \frac{vec(see) + vec(star)}{2}$
+
+\caption{An example of computing $\vec{c}$ for a window size ($k$) of
+  2, where $vec(w)$ is the vector for word $w$ obtained from
+  word2vec.\label{fig:features}}
+\end{figure}
+
+
+%% model is applicable to discontiguous MWEs (such as German PNVs)
+
+%% it's a parallel to the case of forming the type level vector for the V
+%% and N
+
+
+%% \begin{equation}
+%% c = \frac{1}{n} \sum_{i=1}^{n} c_i
+%% \end{equation}
+
+%% where $n$ is the number of tokens forming the MWE. This method of
+%% feature extraction is conceptually similar to that of
+%% \cite{fazly2009unsupervised} but the context vector is formed by using
+%% the distributed representations from the Word2vec model instead of the
+%% distributional ones. Our method also forms a vector for each token in
+%% the MWE and then averages those vectors to obtain the context vector
+%% instead of just taking the words that co-occur with the MWE.
+
+
+Finally, to form the feature vector representing a \VNIC instance, we
+subtract $\vec{e}$ from $\vec{c}$, and append to this vector a single
+binary feature representing whether the \VNIC instance occurs in its
+canonical form, as determined by \cite{Fazly2009}. The feature vectors
+are then used to train a supervised classifier; in our experiments we
+use the linear SVM implementation from \cite{pedregosa2011scikit}.
+The motivation for the subtraction is to capture the difference
+between the context in which a \VNIC instance occurs ($\vec{c}$) and a
+type-level representation of that expression ($\vec{e}$), to
+potentially represent \VNIC instances such that the classifier is able
+to generalize across expressions (i.e., to generalize to MWE types
+that are unseen during training). The canonical form feature is
+included because it is known to be highly informative as to whether an
+instance is idiomatic or literal.
+
+
+\subsection{Unsupervised VNIC Identification\label{sec:method:unsup}}
+
+Our unsupervised approach combines the word embedding--based
+representation used in the supervised approach (without relying on
+training a supervised classifier, of course) with the unsupervised
+\cform method of \cite{Fazly2009}. In this approach, we first
+represent each token instance of a given \VNIC type as a feature
+vector, using the same representation as in
+\secref{sec:method:sup}.\footnote{Based on results in preliminary
+  experiments we found that normalizing the feature vectors led to
+  modest improvements in this case.} We then apply $k$-means
+clustering to form $k$ clusters of the token instances.\footnote{In
+  our experiments we use the implementation of $k$-means clustering
+  from \cite{pedregosa2011scikit}.}  All instances in each cluster are
+then assigned a single class, idiomatic or literal, depending on
+whether the majority of token instances in a cluster are in that
+\VNIC's canonical form or not, respectively. In the case of ties the
+method backs off to a most-frequent class (idiomatic) baseline. This
+method is unsupervised in that it does not rely on any gold standard
+labels.
+
+\section{Materials and Methods}
+
+In this section we describe training details for the word embeddings
+and the dataset used for evaluation.
+
+\subsection{Word embeddings}
+
+The word embeddings required by our proposed methods were trained
+using the gensim\footnote{\url{https://radimrehurek.com/gensim/}}
+implementation of the skip gram version of word2vec
+\citep{Mikolov+:2013b}. The model was trained on a snapshot of English
+Wikipedia from 1 September 2015. The text was pre-processed using
+wp2txt\footnote{\url{https://github.com/yohasebe/wp2txt}} to remove
+markup, and then tokenized with the Stanford tokenizer
+\citep{manning-EtAl:2014:P14-5}. Tokens occurring less than 15 times
+were removed, and the negative sampling parameter was set to 5.
+
+\subsection{VNC-Tokens Dataset}
+
+The VNC-Tokens dataset \citep{Cook2008} contains instances of 53 \VNIC
+types --- drawn from the British National Corpus \citep{Burnard2007}
+--- that have been manually annotated at the token level for whether
+they are literal or idiomatic usages. The 53 expressions are divided
+into three subsets: \dev, \test, and \skewed. \skewed consists of 25
+expressions that are used primarily idiomatically, or primarily
+literally, while \dev and \test consist of 14 expressions each that
+are more balanced between their idiomatic and literal
+usages. \cite{Fazly2009} focus primarily on \dev and \test; we
+therefore only consider these subsets here. \dev and \test consist of
+a total of 597 and 613 \VNIC tokens, respectively, that are annotated
+as either literal or idiomatic usages.\footnote{Both \dev and \test
+  also contain instances that are annotated as ``unknown''; following
+  \cite{Fazly2009} we exclude these instances from our study.}
+
+
+\section{Experimental Results}
+
+In the following subsections we describe the results of experiments
+using our supervised approach, the ability of this method to
+generalize across MWE types, and finally the results of the
+unsupervised approach.
+
+\subsection{Supervised Results}
+
+
+\begin{table}
+\centering
+\begin{tabular}{cccc} \hline
+Window & Dimensions & Dev & Test \\ 
+\hline
+  & 50  & 87.3 & 85.9  \\
+1 & 100 & \textbf{88.2} & 85.5  \\ 
+  & 300 & 86.3 & \textbf{88.3}  \\ 
+\hline
+  & 50  & 86.4 & 84.2  \\
+2 & 100 & 86.7 & 84.2   \\ 
+  & 300 & 86.5 & 86.7  \\ 
+\hline
+  & 50  & 86.0 & 83.4  \\
+5 & 100 & 85.9 & 84.2  \\ 
+  & 300 & 87.3 & 85.7  \\ 
+\hline
+  & 50  & 85.5 & 84.3  \\
+8 & 100 & 85.6 & 85.9  \\ 
+  & 300 & 85.8 & 86.3   \\ 
+\hline
+\multicolumn{2}{l}{Baseline} & 62.1 & 61.9\\
+\multicolumn{2}{l}{\cite{Fazly2009} \cform} & 72.3 & 73.7\\
+\multicolumn{2}{l}{\cite{Fazly2009} Supervised} & 80.1 & 82.7 \\
+\hline
+\end{tabular}
+\caption{Percent accuracy using a linear SVM for different word2vec
+  parameters. Results for a most-frequent class baseline, and the
+  \cform and supervised methods from \cite{Fazly2009}, are also
+  shown.\label{tab:sup-vnc}}
+\end{table}
+
+\begin{table*}
+\centering
+\begin{tabular}{cccccc} 
+& \multicolumn{2}{c}{\cform} & & \multicolumn{2}{c}{Oracle} \\
+$k$ & Dev & Test & & Dev & Test \\ 
+\hline
+2 & 67.8 $\pm{3.13}$ & 64.2 $\pm{2.57}$          & & 82.6 $\pm{0.65}$ & 81.5 $\pm{2.86}$ \\
+3 & 68.2 $\pm{4.36}$ & 71.1 $\pm{2.99}$          & & 84.2 $\pm{2.94}$ & 83.2 $\pm{2.58}$ \\
+4 & 69.7 $\pm{5.24}$ & \textbf{78.1} $\pm{3.30}$ & & 86.0 $\pm{3.02}$ & 85.9 $\pm{2.82}$ \\
+5 & \textbf{71.8} $\pm{6.58}$ & 76.5 $\pm{4.07}$ & & 86.9 $\pm{3.54}$ & 87.9 $\pm{2.36}$ \\
+%% 8 & 69.6 $\pm{6.00}$ & 75.4 $\pm{5.66}$          & & \textbf{89.5} $\pm{2.74}$ & \textbf{93.7} $\pm{2.49}$\\
+\hline
+\end{tabular}
+\caption{The percent accuracy, and standard deviation, of our
+  unsupervised approach incorporating \cform (left), and an oracle
+  (right), for differing values of $k$.\label{tab:unsup}}
+\end{table*}
+
+
+
+Following \cite{Fazly2009}, the supervised approach was evaluated
+using a leave-one-token-out strategy. That is, for each MWE, a single
+token instance is held out, and the classifier is trained on the
+remaining instances. The trained model is then used to classify the
+held out instance. This is repeated until all the instances of the MWE
+type have been classified. The idiomatic and literal classes have
+roughly comparable frequencies in the dataset, therefore, again
+following \citeauthor{Fazly2009}, macro-averaged accuracy is
+reported.\footnote{This is equivalent to macro-averaged recall.}
+Nevertheless, the idiomatic class is more frequent; therefore, also
+following \citeauthor{Fazly2009}, we report a most-frequent class
+baseline that classifies all instances as idiomatic.  Results are
+shown in \tabref{tab:sup-vnc} for a variety of settings of window size
+and number of dimensions for the word embeddings.
+
+%% Overview of results
+
+%% -Not a huge amount of variation
+%% -smaller window sizes / more dimensions = better
+%% -discuss why smaller window size is better
+
+The results reveal the general trend that smaller window sizes, and
+more dimensions, tend to give higher accuracy, although the overall
+amount of variation is relatively small. The accuracy on \dev and
+\test ranges from 85.5\%--88.2\% and 83.4\%--88.3\%, respectively. All
+of these accuracies are higher than those reported by \cite{Fazly2009}
+for their supervised approach. They are also substantially higher than
+the most-frequent class baseline, and the unsupervised \cform method
+of \citeauthor{Fazly2009}
+
+That a window size of just 1 performs well is interesting. A word2vec
+model with a smaller window size gives more syntactically-oriented
+word embeddings, whereas a larger window size gives more
+semantically-oriented embeddings \citep{trask2015modeling}.  The
+\cform method of \cite{Fazly2009} is a strong unsupervised benchmark
+for this task, and relies on the lexico-syntactic pattern in which an
+MWE token instance occurs. A smaller window size for the word
+embedding features might be better able to capture similar information
+to \cform, which could explain the good performance of the model using
+a window size of 1.
+%% such a small window size.
+
+%% Generalization across types
+\subsection{Generalization to Unseen \VNICs}
+
+
+We do not expect to have substantial amounts of annotated training
+data for every \VNIC. We therefore further consider whether the
+supervised approach is able to generalize to MWE types that are unseen
+during training. Indeed, this scenario motivated the choice of
+representation of \VNIC token instances in \secref{sec:method:sup}.
+In these experiments we perform a leave-one-type-out evaluation. In
+this case, all token instances for a single MWE type are held out, and
+the token instances of the remaining MWE types (limited to those
+within either \dev or \test) are used to train a classifier. The
+classifier is then used to classify the token instances of the held
+out MWE type. This process is repeated until all instances of all MWE
+types have been classified.
+
+For these experiments we consider the setup that performed best on
+average over \dev and \test in the previous experiments (i.e., a
+window size of 1 and 300 dimensional vectors).
+%% Accuracy of using Window=1, Dimensions = 100 here (i.e., the best
+%% method on the dev data) DEV: 66.0%, TEST = 67.5%
+The macro-averaged accuracy on \dev and \test is 68.9\% and 69.4\%,
+respectively. Although this is a substantial improvement over the
+most-frequent class baseline, it is well-below the accuracy for the
+previously-considered leave-one-token-out setup. Moreover, the
+unsupervised \cform method of \cite{Fazly2009} gives substantially
+higher accuracies than this supervised approach. The limited ability
+of this model to generalize to unseen MWE types further motivates
+exploring unsupervised approaches to this task.
+
+\subsection{Unsupervised Results}
+
+%% ***** Need to mention that we repeat the clustering $n$ times because
+%% it's random... *****
+
+%% Our proposed unsupervised approach clusters token instances of a given
+%% MWE type via $k$-means clustering. All instances in each cluster are
+%% then assigned a single class, idiomatic or literal, depending on
+%% whether the majority of token instances in a cluster are in that
+%% \VNIC's canonical form or not, respectively. In the case of ties the
+%% method backs off to the most-frequent class (idiomatic) baseline.
+
+The $k$-means clustering for the unsupervised approach is repeated 100
+times with randomly-selected initial centroids, for several values of
+$k$.  The average accuracy and standard deviation of the unsupervised
+approach over these 100 runs are shown in the left panel of
+\tabref{tab:unsup}.
+%% Results for the unsupervised approach are shown in the left panel of
+%% \tabref{tab:unsup}. 
+For $k$ = 4 and 5 on \test, this approach surpasses the unsupervised
+\cform method of \cite{Fazly2009}; however, on \dev this approach does
+not outperform \posciteauthor{Fazly2009} \cform approach for any of
+the values of $k$ considered. Analyzing the results on individual
+expressions indicates that the unsupervised approach gives especially
+low accuracy for \emph{hit roof} --- which is in \dev --- as compared
+to the \cform method of \citeauthor{Fazly2009}, which could contribute
+to the overall lower accuracy of the unsupervised approach on this
+dataset.
+
+
+%% Nevertheless, these results suggest that improved
+%% methods for selecting the best label for clusters of usages could
+%% yield improvements for unsupervised approaches to \VNIC
+%% identification.
+
+We now consider the upperbound of an unsupervised approach that
+selects a single label for each cluster of usages. In the right panel
+of \tabref{tab:unsup} we show results for an oracle approach that
+always selects the best label for each cluster. In this case, as the
+number of clusters increases, so too will the accuracy.\footnote{When
+  the number of clusters is equal to the number of instances, the
+  accuracy will be 100\%.} Nevertheless, these results show that, even
+for relatively small values of $k$, there is scope for improving the
+proposed unsupervised method through improved methods for selecting
+the label for each cluster, and that the performance of such a method
+could potentially come close to that of the supervised approach. A
+word's predominant sense is known to be a powerful baseline in
+word-sense disambiguation, and prior work has addressed automatically
+identifying predominant word senses \citep{McCarthy2007,
+  Lau+:2014}. The findings here suggest that methods for determining
+whether a set of usages of a \VNIC are predominantly literal or
+idiomatic could be leveraged to give further improvements in
+unsupervised \VNIC identification.
+
+
+\section{Conclusions}
+
+In this paper we proposed supervised and unsupervised approaches,
+based on word embeddings, to identifying token instances of \VNICs
+that performed better than the supervised approach, and unsupervised
+\cform approach, of \cite{Fazly2009}, respectively. In future work we
+intend to consider methods for determining the predominant ``sense''
+(i.e., idiomatic or literal) of a set of usages of a \VNIC, in an
+effort to further improve unsupervised \VNIC identification.
+
+
+\begin{table*}
+\centering
+\begin{tabular}{cccc} \hline
+\multirow{2}{*}{Window} & \multirow{2}{*}{Dimensions} & \multicolumn{2}{c}{\% accuracy} \\
+& & Dev & Test \\ 
+\hline
+  & 50  & 87.3 & 85.9  \\
+1 & 100 & \textbf{88.2} & 85.5  \\ 
+  & 300 & 86.3 & \textbf{88.3}  \\ 
+\hline
+  & 50  & 86.4 & 84.2  \\
+2 & 100 & 86.7 & 84.2   \\ 
+  & 300 & 86.5 & 86.7  \\ 
+\hline
+  & 50  & 86.0 & 83.4  \\
+5 & 100 & 85.9 & 84.2  \\ 
+  & 300 & 87.3 & 85.7  \\ 
+\hline
+  & 50  & 85.5 & 84.3  \\
+8 & 100 & 85.6 & 85.9  \\ 
+  & 300 & 85.8 & 86.3   \\ 
+\hline
+\multicolumn{2}{l}{Baseline} & 62.1 & 61.9\\
+\multicolumn{2}{l}{\cite{Fazly2009} \cform} & 72.3 & 73.7\\
+\multicolumn{2}{l}{\cite{Fazly2009} Supervised} & 80.1 & 82.7 \\
+\hline
+\end{tabular}
+\end{table*}
+
+
+\begin{table*}
+\centering
+\begin{tabular}{lcc}
+\hline
+Method & \multicolumn{2}{c}{\% accuracy} \\
+\hline
+Baseline & 62.1 & 61.9\\
+%% Supervised: Leave-one-type-out & 68.9 & 69.4\\
+\cite{Fazly2009} \cform & 72.3 & 73.7\\
+\cite{Fazly2009} Supervised & 80.1 & 82.7 \\
+Supervised: Leave-one-token-out & 86.3 & 88.3\\
+\hline
+\end{tabular}
+\end{table*}
+
+\begin{table*}
+\centering
+\begin{tabular}{cccccc} 
+\hline
+\multirow{2}{*}{$k$} & \multicolumn{2}{c}{\cform} & & \multicolumn{2}{c}{Oracle} \\
+ & Dev & Test & & Dev & Test \\ 
+\hline
+1 & \textbf{72.3} & 73.7 & & 74.7 & 75.2 \\
+2 & 67.8 & 64.2          & & 82.6 & 81.5 \\
+3 & 68.2 & 71.1          & & 84.2 & 83.2 \\
+4 & 69.7 & \textbf{78.1} & & 86.0 & 85.9 \\
+5 & 71.8 & 76.5 & & 86.9 & 87.9 \\
+%% 8 & 69.6 $\pm{6.00}$ & 75.4 $\pm{5.66}$          & & \textbf{89.5} $\pm{2.74}$ & \textbf{93.7} $\pm{2.49}$\\
+\hline
+\end{tabular}
+\end{table*}
+
+
+\section*{Acknowledgments}
+
+This work is financially supported by the Natural Sciences and
+Engineering Research Council of Canada, the New Brunswick Innovation
+Foundation, and the University of New Brunswick.
+
+% include your own bib file like this:
+\bibliographystyle{acl_natbib}
+\bibliography{Project_report,../bibtex/big}
+%\bibliography{acl2016}
+%\bibliographystyle{acl2016}
+
+\appendix
+
+\end{document}

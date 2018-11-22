@@ -1,0 +1,448 @@
+\documentclass[paperwidth=90cm,paperheight=120cm,final]{baposter}
+%\documentclass[a4shrink,portrait,final]{baposter}
+% Usa a4shrink for an a4 sized paper.
+
+%\tracingstats=2
+
+
+\usepackage{epsfig}
+\usepackage{times}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{relsize}
+\usepackage{multirow}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{siunitx}
+
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+\newcommand\original{\textsc{Original}\xspace}
+\newcommand\twitter{\textsc{Twitter}\xspace}
+
+\newcommand\glove{GloVe\xspace}
+
+\newcommand{\eqnref}[1]{Equation~\ref{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\figsref}[2]{Figures~\ref{#1} and \ref{#2}}
+\newcommand{\posciteauthor}[1]{\citeauthor{#1}'s}
+\newcommand{\poscite}[1]{\citeauthor{#1}'s \citeyearpar{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\secsref}[2]{Sections~\ref{#1} and \ref{#2}}
+\newcommand{\sentref}[1]{(\ref{#1})}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\tabsref}[2]{Tables~\ref{#1} and \ref{#2}}
+
+\usepackage{helvet}
+\usepackage{bookman}
+%\usepackage{palatino}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{relsize,url}
+
+\usepackage{pgfbaselayers}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+\usepackage{helvet}
+\usepackage{bookman}
+%\usepackage{palatino}
+
+% mine
+
+\pdfinclusioncopyfonts=1 
+
+\usepackage{epsfig,graphicx,arydshln}
+\usepackage{xspace,url,relsize}
+\usepackage{mdwlist}
+
+\newcounter{featcounter}
+\newenvironment{featlist}{\begin{list}{\arabic{featcounter}.}{\usecounter{featcounter}}}{\end{list}}
+
+
+\newsavebox{\fmbox}
+\newenvironment{fmpage}[1]
+{\begin{lrbox}{\fmbox}\begin{minipage}{#1}}
+{\end{minipage}\end{lrbox}\fbox{\usebox{\fmbox}}}
+% end mine
+
+%\newcommand{\captionfont}{\footnotesize}
+
+\selectcolormodel{cmyk}
+
+\graphicspath{{img/}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Some math symbols used in the text
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Format 
+\newcommand{\Matrix}[1]{\begin{bmatrix} #1 \end{bmatrix}}
+\newcommand{\Vector}[1]{\Matrix{#1}}
+\newcommand*{\SET}[1]  {\ensuremath{\mathcal{#1}}}
+\newcommand*{\MAT}[1]  {\ensuremath{\mathbf{#1}}}
+\newcommand*{\VEC}[1]  {\ensuremath{\bm{#1}}}
+\newcommand*{\CONST}[1]{\ensuremath{\mathit{#1}}}
+\newcommand*{\norm}[1]{\mathopen\| #1 \mathclose\|}% use instead of $\|x\|$
+\newcommand*{\abs}[1]{\mathopen| #1 \mathclose|}% use instead of $\|x\|$
+\newcommand*{\absLR}[1]{\left| #1 \right|}% use instead of $\|x\|$
+\newcommand{\spadeaff}{\ensuremath{\spadesuit}\xspace}
+\newcommand{\clubaff}{\ensuremath{\clubsuit}\xspace}
+\newcommand{\heartaff}{\ensuremath{\heartsuit}\xspace}
+\newcommand{\diamondaff}{\ensuremath{\diamondsuit}\xspace}
+
+
+\newcommand{\langid}{{\Large \url{langid.py}}\xspace}
+\newcommand{\textcat}{\textsc{TextCat}\xspace}
+\newcommand{\clueweb}{ClueWeb09\xspace}
+
+
+
+\def\norm#1{\mathopen\| #1 \mathclose\|}% use instead of $\|x\|$
+\newcommand{\normLR}[1]{\left\| #1 \right\|}% use instead of $\|x\|$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Multicol Settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setlength{\columnsep}{0.7em}
+\setlength{\columnseprule}{0mm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Save space in lists. Use this after the opening of the list
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\compresslist}{%
+\setlength{\itemsep}{0.2ex}%
+\setlength{\parskip}{0.2ex}%
+\setlength{\parsep}{0pt}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Begin of Document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\larger
+\sffamily
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Here starts the poster
+%%%---------------------------------------------------------------------------
+%%% Format it to your taste with the options
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Define some colors
+\definecolor{silver}{cmyk}{0,0,0,0.3}
+\definecolor{yellow}{cmyk}{0,0,0.9,0.0}
+\definecolor{reddishyellow}{cmyk}{0,0.22,1.0,0.0}
+\definecolor{black}{cmyk}{0,0,0.0,1.0}
+\definecolor{darkYellow}{cmyk}{0,0,1.0,0.5}
+\definecolor{darkSilver}{cmyk}{0,0,0,0.1}
+
+\definecolor{darkGreen}{cmyk}{0.88,0,0.88,0.41}
+\definecolor{midGreen}{cmyk}{0.71,0,0.66,0.01}
+
+\definecolor{midBlue}{cmyk}{0.44,0.14,0,0.03}
+\definecolor{lightSkyBlue}{cmyk}{0.31,0.11,0,0.00}
+\definecolor{darkSkyBlue}{cmyk}{0.47,0.19,0,0.45}
+\definecolor{myBlue}{cmyk}{0.31,0.12,0,0.10}
+\definecolor{darkRed}{cmyk}{0,1,1,0.56}
+\definecolor{lightRed}{cmyk}{0,0.45,0.45,0.05}
+
+ \definecolor{Pink}{cmyk}{0.00, 0.41, 0.41, 0.14}
+
+
+%%
+\typeout{Poster Starts}
+\background{
+  \begin{tikzpicture}[remember picture,overlay]%
+    \draw (current page.north west)+(-2em,2em) node[anchor=north west] {\includegraphics[height=1.1\textheight]{silhouettes_background}};
+  \end{tikzpicture}%
+}
+
+\newlength{\leftimgwidth}
+\begin{poster}%
+  % Poster Options
+  {
+  % Show grid to help with alignment
+  grid=no,
+  % Column spacing
+  colspacing=0.8em,
+  columns=4,
+  % Color style
+  bgColorOne=white,
+  bgColorTwo=white,
+  borderColor=darkSkyBlue,
+  %borderColor=silver,
+  %headerColorOne=midBlue,
+  headerColorOne=myBlue,
+  headerColorTwo=lightSkyBlue,
+  headerFontColor=black,
+  boxColorOne=white,
+  boxColorTwo=white,
+  % Format of textbox
+  textborder=rounded,
+  % Format of text header
+  eyecatcher=yes,
+  headerborder=open,
+  headerheight=0.19\textheight,
+  headershape=rounded,
+  headershade=plain,
+  %headerfont=\Large\textsf, %Sans Serif
+  headerfont=\Large\textsc, %Sans Serif
+%  textfont=\sf,
+  boxshade=plain,
+%  background=shade-tb,
+  background=plain,
+  linewidth=1pt
+  }
+  % Eye Catcher
+  {
+\hspace{55mm}
+%\hspace{10mm}\scalebox{0.1}{\includegraphics{unbLogo}}
+  }
+  % Title
+  %{\sf\LARGE\vspace*{2em}
+  {
+    \textsf{\bfseries Supervised and unsupervised approaches to usage similarity}
+    %% \vspace*{0.8ex}
+  }
+  % Authors
+{\vspace{3mm}
+\sf Milton King and Paul Cook \\
+University of New Brunswick\\
+  {\tt \{milton.king,paul.cook\}@unb.ca} \vspace*{-2ex}
+}
+{
+\scalebox{0.4}{\includegraphics{UNB-primary_RGB_K}} \hspace{5mm}
+
+%  \tikzstyle{light shaded}=[top color=baposterBGtwo!30!white,bottom 
+%  color=baposterBGone!30!white,shading=axis,shading angle=30]
+%
+%  % Width of left inset image
+%     \setlength{\leftimgwidth}{0.78em+8.0em}
+%    % A coloured circle useful as a bullet with an adjustably strong filling
+%    \newcommand{\colouredcircle}[1]{%
+%      \tikz{\useasboundingbox (-0.2em,-0.32em) rectangle(0.2em,0.32em); \draw[draw=black,fill=baposterBGone!80!black!#1!white,line width=0.03em] (0,0) circle(0.18em);}}
+%
+
+%\begin{minipage}[b]{0.01\linewidth}
+   %\includegraphics[scale=0.083]{unbLogo.png}
+   % \end{minipage}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \headerbox{Word Usage Similarity (USim)
+}{name=usim,column=0,row=0,span=2}{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\Large
+\begin{itemize}
+    \item Measure the similarity of a pair of usages of a target lemma
+      \begin{itemize}
+    \item Does not rely on a sense inventory
+    \item Well-suited to text types with many OOVs and new senses, e.g.,
+      social media
+      \end{itemize}
+\item \textbf{Scale:} (1) completely different -- (5) the same 
+\end{itemize}
+\vfill
+\begin{center}
+\begin{tabular}{cl}
+Similarity & Usage pair\\
+\hline
+\multirow{2}{*}{3.3} 
+& \large{A chain is only as \underline{strong} as its weakest link.}\\
+&  \large{Norway must send a \underline{strong} signal.} \\
+ &  \\
+\multirow{2}{*}{1.3} 
+&  \large{A country needs a \underline{strong} leader.}\\
+&  \large{It has a \underline{strong} fruity flavour.}\\
+\end{tabular}
+\end{center}
+\vfill
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \headerbox{Embeddings
+}{name=embeddings,column=0,row=0,span=2, below=usim}{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\Large    
+
+\begin{itemize}
+\item Considered 4 embedding-based representations of a single target usage
+
+\begin{itemize}
+%%     \item \textbf{Embeddings:} Vector representations of text generated using neural networks 
+%% 	\vfill    
+%% \setlength{\itemindent}{+.2in}
+\item \textbf{Word2vec:} Average skipgram embeddings for words in
+  target sentence
+\item \textbf{GloVe:} Average GloVe embeddings for words in
+target sentence
+\item \textbf{Skip-thoughts:} Embed target sentence 
+\item \textbf{Context2vec:} Embed context of target word in sentence
+\vfill
+\end{itemize}
+\end{itemize}
+%%Using \verb+\itemindent+ directly:
+\vfill
+\vfill
+}
+
+
+
+
+
+
+%Make biggger table
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \headerbox{Datasets and Evaluation
+}{name=eval,column=2,row=0,span=2}{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\Large    
+\begin{itemize}
+ \item \textbf{Datasets:} Pairs of sentences with the same target lemma and a similarity score given by human annotators
+    %%OLD \item \textbf{Datasets:} Each dataset contains pairs of sentences with the same target word in each sentence and the similarity rating for a given pair given by human annotators.
+    \end{itemize}
+\begin{center}
+{
+         \begin{tabular}{l|P{2cm}|P{3.4cm}|P{2.6cm}}
+
+	 \multirow{2}{*}{Dataset} & \multirow{2}{*}{Lemmas}&\multirow{1}{*}{No. sentence} & \multirow{1}{*}{Parts-of}\\
+&& pairs&-speech \\
+\hline
+	ORIGINAL & 34 & 1512 & N,V,Adj,Adv\\
+	TWITTER & 10 & 550 & N\\
+	\end{tabular}
+}
+\end{center}
+\vfill
+
+\begin{itemize}
+
+\item \textbf{TWITTER:} Tweets
+
+\item \textbf{ORIGINAL:} Text from web pages 
+
+\item  \textbf{Evaluation:} Spearman's $\rho$ between the model's predictions and human judgments
+
+ 
+\end{itemize}
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \headerbox{Results
+}{name=results,column=2,row=0,span=2, below=eval}{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\large
+ 
+{
+
+\centering
+\begin{tabular}{P{1.4cm}P{3.4cm}P{2.4cm}P{1.4cm}P{1.4cm}}
+
+\multirow{2}{*}{Dataset} & \multirow{2}{*}{Embeddings} & \multirow{2}{*}{Unsupervised} & \multicolumn{2}{c}{Supervised} \\
+& & & \multicolumn{1}{c}{All} &  \multicolumn{1}{c}{Lemma} \\
+\hline
+\multirow{4}{*}{\textsc{Original}} & Word2vec & 0.281* & 0.435* & 0.220* \\
+ & \glove & 0.218* & 0.410* & \textbf{0.230*} \\
+ & Skip-thoughts & 0.177* & \textbf{0.436*} & 0.099* \\
+ & Context2vec & \textbf{0.302*} & 0.417* & 0.172* \\
+& Prev. state-of-art &\multicolumn{1}{P{2.2cm}}{ 0.202} & - & - \\
+\hline
+\multirow{4}{*}{\textsc{Twitter}} & Word2vec & \textbf{0.300*} & \textbf{0.384*} & \textbf{0.196*} \\
+ & \glove & 0.122* & 0.314* & 0.134*\\
+ & Skip-thoughts & 0.095* & 0.360* & 0.058\phantom{*} \\
+ & Context2vec & 0.122* &0.193*  & 0.067\phantom{*} \\
+& Prev. state-of-art & \multicolumn{1}{P{2cm}}{0.29}  & - & - \\
+
+\end{tabular}\\
+
+         %%\begin{tabular}{l|c|c}
+	 %%& \multicolumn{2}{c}{$\rho$}\\
+	%%Method & ORIGINAL & TWITTER\\
+%\hline
+%	Previous Best & 0.202 & 0.290\\
+%	Unsupervised & 0.285 & 0.364 \\
+%	Supervised & 0.440 & 0.442\\
+	
+%	\end{tabular}\\
+	}
+
+    
+}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \headerbox{Conclusions and Future Work
+}{name=conclusion,column=2,row=0,span=2,below=results}{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\Large    
+\begin{itemize}
+    \item \textbf{Conclusions:}
+\begin{itemize}
+\item State-of-the-art unsupervised results
+\item Further improvements with a supervised approach
+\item Supervised model generalizes poorly to unseen lemmas
+\end{itemize}
+
+    \item \textbf{Future Work:} 
+\begin{itemize}
+\item Consider alternative regression algorithms and embedding models
+\end{itemize}
+%%Did not discuss per lemma
+    \end{itemize}
+
+}
+
+
+  \headerbox{USim Models
+}{name=model,column=0,row=0,span=2, below=embeddings,,bottomaligned=conclusion}{
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\Large    
+\begin{itemize}
+    \item \textbf{Unsupervised:} Similarity = cosine between vector
+      representation of each sentence
+\vfill
+\item \textbf{Supervised:} Represent a sentence pair as the component-wise absolute difference and product of their vector representations
+
+\end{itemize}
+
+%%Using \verb+\itemindent+ directly:
+\begin{itemize}
+\setlength{\itemindent}{+.4in}
+
+ \item Train ridge regression
+\item 10 fold cross-validation
+
+    \end{itemize}
+\vfill
+}
+
+
+
+
+
+
+\end{poster}%
+\end{document}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-command-default: "Make"
+%%% TeX-master: t
+%%% End: 

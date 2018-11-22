@@ -1,0 +1,97 @@
+============================================================================
+LREC 2016 Reviews for Submission #342
+============================================================================
+
+Title: Automatically Classifying Out-of-vocabulary Terms in a
+Domain-Specific Social Media Corpus
+
+Authors: SoHyun Park, Paul Cook, Afsaneh Fazly, Annie Lee, Brandon
+Seibel and Wenjie Zi
+
+============================================================================
+                            REVIEWER #1
+============================================================================
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+The paper presents a method for the automatic classification of OOV
+terms from domain-specific social media corpora. The work tackles a
+very relevant issue, which can have useful application in other NLP
+tasks.  The analysis is interesting and the research is well
+presented. Below are a few points that the Authors might consider
+addressing in the final version of the paper:
+
+Why did the Authors choose the automotive domain for their study? Do
+the Authors think that the same methodology and features could be
+applied also to other domains?
+
+The new parts and expansions that the Authors intend to add to the
+final version of the paper are extremely relevant and will definitely
+improve the paper.  The paper would also benefit from reference to
+existing literature on OOVs, which would allow a better evaluation of
+the contribution of this work to the field.
+
+============================================================================
+                            REVIEWER #2
+============================================================================
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+This paper describes experiments to classify out-of-vocabulary (OOV)
+terms in social media corpus belonging to the automotive domain. They
+have a set of nine categories (ex. non Named Entity (NE) automotive
+terms, drug names, non-English terms, units of measurement, ...), and
+use a maximum entropy classifier, including different classes of
+features: character n-grams, character n-grams models computed from
+different corpora (English, Spanish, German), frequency of OOV term in
+different corpora, word embeddings for each OOV term, surface form (a
+given OOV might be the concatenation of two in-vocabulary words). They
+show that the best clasifying system, using a 10x10-fold
+cross-validation set up, combines all features but the frequency ones.
+
+I find this paper very solid and interesting. Hereby are some points
+that could be improved:
+
+- the authors should be much more precise on the description of
+feature classes. In the current state, it is not feasible to precisely
+reproduce the experiments. I would suggest that they describe the
+classes of features formally.
+
+- they should compute statistical significance.
+
+- it would be interesting to draw some hypothesis to explain the
+results: especially, why do the frequency features lower the
+experimental results with respect to the best combined system; why are
+embeddings so good?
+
+============================================================================
+                            REVIEWER #3
+============================================================================
+
+
+---------------------------------------------------------------------------
+Comments
+---------------------------------------------------------------------------
+
+This is a well structured and informative paper, based on useful work.
+
+It would be interesting to:
+
+- have a better knowledge about the effects of tokenization; potential
+markers left out by tokenization processes are sometimes useful to
+identify OOVs (e.g.  quotation marks around words perceived as
+neologisms or unusual by he writer);
+
+- have an insight on how apparent compounds were treated and whether
+hyphenated words were given special attention (variants due to out of
+place hyphenation, compounds that are made of two recognizable words
+but taken as an OOV if analyzed as a whole).
+
+The final version should have a better description of the corpus and
+further details on the OOV classification process.

@@ -1,0 +1,18 @@
+Running pdflatex on my (Paul's) machine (running OSX) gives a document
+with letter as opposed to a4 paper size. Run these commands to
+generate an a4 version:
+
+latex paper.tex
+dvips -t a4 paper.dvi
+ps2pdf -sPAPERSIZE=a4 paper.ps
+
+
+Check that it's an a4 with:
+
+pdfinfo paper.pdf
+
+Check that fonts are embedded with:
+
+pdffonts paper.pdf
+
+

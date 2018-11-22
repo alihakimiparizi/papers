@@ -1,0 +1,73 @@
+We have described how we addressed each of the reviewers' concerns
+below.
+
+Reviewer 1
+
+> The authors use several word embedding-based approaches for the
+> SemEval similarity measurement competition. They consider both
+> supervised and unsupervised techniques and achieve modest
+> improvement over the baselines.
+
+> 1. The authors obtain significant boost by "training ridge
+> regression based on features derived from skip-thought
+> vectors". This part is interesting but unfortunately as readers we
+> would like to see more details... what are those features? Could you
+> please provide further details on that?
+
+These features are described in Section 2.1.3. A pointer to this
+description has been added (at the place in the paper where the above
+quotation is taken from).
+
+
+> 2. The authors says "following Tai et al. (2015).... we represented
+> each pair of sentences as a vector consisting of the
+> ... componentwise product", I am just wondering did you also use the
+> treelstm from Tai et. al for vector construction? If I remember
+> correctly Tai et al. uses variants of lstms for composing sentence
+> vectors from word embeddings. So could you please clarify on it?
+
+We did not use treelstm from Tai et. al. We removed the reference to
+Tai et al. (2015), which in retrospect was not necessary (because we
+are citing Kiros et al.), to avoid this potential confusion.
+
+
+> 3. I also agree with authors' claims that simply using Cosine
+> distance between two sentence vectors may not lead to competitive
+> performance. This shares similar conclusion by He et al's work in
+> EMNLP 2015. The simple sum and prod of vector composition are also
+> not highly useful.
+
+The only paper by He et al. at EMNLP 2015 is 
+
+He He; Alvin Grissom II; John Morgan; Jordan Boyd-Graber; Hal Daumé III
+Syntax-based Rewriting for Simultaneous Machine Translation
+
+which does not appear to be relevant here. We've searched in other
+2015 venues and previous EMNLPs for other He et al. papers, but are
+unfortunately unable to find the paper the reviewer is trying to point
+out.
+
+
+> 4. I think the unsupervised training pairs well with the word
+> embeddings-based approaches. The author did that which is good.
+
+> 5. Lastly, the baseline in this submission looks reasonablely good,
+> hopefully more details can be provided on that. e.g what are those
+> word types?
+
+We have clarified that a word type is a wordform. We have also
+added further details on the stopword list used.
+
+
+Reviewer 2
+
+> The title should be "XXX at SemEval-2016 Shared Task 1 : ..." where
+> XXX is the name of the team.
+
+XXX in the title has been changed to the team name (UNBNLP).
+
+> The explanation of the approach is not easy to follow, some more
+> explanation text would be helpful. In order to reproduce the results
+> some more details should be added.
+
+We have addressed the specific concerns raised by reviewer 1.

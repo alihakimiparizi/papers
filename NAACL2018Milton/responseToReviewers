@@ -1,0 +1,9 @@
+Dear Reviewers,
+
+	Thank you for your time to review our paper. We have taken into consideration about reworking this work as a short paper. The following will consist of responses addressing your concerns and questions. 
+
+Reviewer 1: Further training of the word2vec method was deemed unnecessary due to it achieving the highest accuracy of all considered models. The dimensions for word2vec were chosen based on performing well on other tasks. We believe that including the definition of the word2vec model gives a high level explanation for those unfamiliar with the model. The normalization of the word embeddings are done by mapping each word embeddings onto a unit n-sphere. The ‘everything is idiomatic’ baseline would give some perspective on the results on the other model for those who are not familiar with the models that we compare against.  
+
+Reviewer 2: There are no error analysis presented but could be included. The assumption of canonical forms may not work for all languages but it gives useful information for the English dataset that we are working on. Yes, we appear to be missing the line numbers, and ‘anonymous NACCL submission’ in the title. We are using the same dataset and comparing against previous authors’ work but we are not the authors of the original work.
+
+Reviewer 3: We will be rewording the end of section 4.1 to make it more transparent about the term ‘unseen VNC’s’. This work does evaluate over an only-English dataset, but it does show which models would make strong candidates for a dataset in another language.

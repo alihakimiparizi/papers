@@ -1,0 +1,35 @@
+
+#1
+
+Weakness 1: What does the result of the tuning process reveal about the word2vec vs. skip-thought approaches?
+
+Answer 1: The tuning of the cost parameter for the SVM shows that both the word2vec and skip-thoughts approaches are sensitive to this parameter (with accuracies between 0.619 and 0.830, and 0.661 and 0.803, respectively). Neither the word2vec embeddings nor the skip-thoughts model were tuned for the task of idiomaticity prediction (e.g., tuning the window size or number of dimensions, in the case of word2vec).
+
+#2
+
+Weakness 1: The contributions come from the analysis, as the paper uses well known models (word2vec, skip-thoughts and siamese-CBOW) and dataset (Cook et al.) applied to a familiar task (idiomaticity identification).
+
+Yes, the contributions do come from the analysis.
+
+Weakness 2: An error analysis is missing (but this omission may be due to space limitations). Adding it would also strengthen the contributions.
+
+We agree that error analysis would strengthen the contributions in the paper. If accepted, we will include this in the extra space allowed for the final version.
+
+Question 1: The addition of the linguistic feature improves the results. Have you tested if this is an effect of the additional dimension (301 vs 300 dimensions) or of the information encoded in it? For instance, what would happen if you randomly assigned a value to this feature?
+
+We have not considered randomly-assigned values for this feature, but this is a good suggestion. We will add this analysis. We did consider representing the canonical form information as a vector of 11 binary features, each representing a specific pattern. This did not outperform the use of a single binary canonical form feature that is reported in the paper.
+
+Question 2: Have you tested the use of the average embedding without stopword removal? As some of the patterns for the canonical form are related to determiner choice, these may be lost with stopword removal.
+
+We did not test the word2vec model without stopword removal. This is again a good suggestion, and we will also include it. It will be particularly interesting to examine the impact of the canonical form feature on word2vec models with and without stopword removal.
+
+#3
+
+Weakness 1: Could it be that there are side effects due to training data size that have more impact than the model itself?
+
+This is a possibility, which we will acknowledge. However, an advantage of word2vec is that it can be trained relatively quickly on large amounts of data, compared to skip-thoughts.
+
+Weakness 2: Unfortunately, there are not many details about the sizes of the training data used for each model, which makes a direct comparison difficult, as well as the different pre-processing steps (e.g. stopwords, footnote 7)
+
+Due to the space limitations, we were not able to provide these details, however, they are available in the papers that are referenced. If accepted, we will use the extra space allowed for the final version to include these details.
+
